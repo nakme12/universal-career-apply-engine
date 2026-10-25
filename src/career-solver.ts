@@ -551,7 +551,7 @@ Portfolio: https://pratik-portfolio-nine-orcin.vercel.app
 GitHub: https://github.com/pratikpatidar
 LinkedIn: https://www.linkedin.com/in/pratik-patidar
 
-I've attached my resume (${path.basename(resumePath)}) tailored for ${company}. Would love to connect if my profile aligns with your team's current requirements.
+I've attached my resume for your review. Would love to connect if my profile aligns with your team's current requirements.
 
 Best regards,
 
