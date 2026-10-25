@@ -1,0 +1,21 @@
+{
+  "name": "universal-career-apply-engine",
+  "version": "1.0.0",
+  "description": "Universal Standalone Auto-Apply Engine for Company Career Pages and ATS Portals",
+  "main": "src/cli.ts",
+  "scripts": {
+    "apply:url": "tsx src/cli.ts",
+    "worker:queue": "tsx src/worker.ts"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "dotenv": "^16.4.7",
+    "playwright": "^1.49.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
