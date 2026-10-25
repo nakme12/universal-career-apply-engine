@@ -17,6 +17,7 @@ export interface CareerApplyResult {
   tailoredResumeUsed: boolean;
   atsScore?: number;
   screenshotPath?: string;
+  recipientEmail?: string;
 }
 
 export class UniversalCareerSolver {
@@ -184,6 +185,26 @@ export class UniversalCareerSolver {
           screenshotPath
         };
       } else {
+        // Step 7: Check if company accepts applications via direct HR / Careers Email
+        const hrEmail = await this.extractHrEmail(page);
+        if (hrEmail) {
+          console.log(`   📧 Direct HR Email detected on career page: ${hrEmail}`);
+          await this.prepareEmailApplication(hrEmail, companyName || domain, optResult.resumePath, optResult.finalScore);
+          await page.screenshot({ path: screenshotPath }).catch(() => null);
+          return {
+            success: true,
+            reason: `Direct HR application prepared for ${hrEmail} with tailored resume attached`,
+            url: targetUrl,
+            domain,
+            fieldsFilled: 1,
+            resumeAttached: true,
+            tailoredResumeUsed: optResult.tailored,
+            atsScore: optResult.finalScore,
+            screenshotPath,
+            recipientEmail: hrEmail
+          };
+        }
+
         await page.screenshot({ path: screenshotPath }).catch(() => null);
         return {
           success: false,
@@ -469,5 +490,82 @@ export class UniversalCareerSolver {
         text.includes('we will get back to you')
       );
     }).catch(() => false);
+  }
+
+  private static async extractHrEmail(page: Page): Promise<string | null> {
+    return page.evaluate(() => {
+      // 1. Check mailto: links
+      const mailtoLinks = Array.from(document.querySelectorAll('a[href^="mailto:"]')) as HTMLAnchorElement[];
+      for (const a of mailtoLinks) {
+        const email = a.href.replace(/^mailto:/i, '').split('?')[0].trim();
+        if (email && email.includes('@') && !email.includes('example.com')) {
+          return email;
+        }
+      }
+
+      // 2. Scan text for hr/careers/jobs/talent emails
+      const bodyText = document.body.innerText || '';
+      const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi;
+      const matches = bodyText.match(emailRegex) || [];
+
+      const prioritized = matches.find(e => {
+        const lower = e.toLowerCase();
+        return lower.includes('career') || lower.includes('hr') || lower.includes('jobs') || lower.includes('talent') || lower.includes('hiring') || lower.includes('join');
+      });
+
+      if (prioritized) return prioritized;
+
+      const valid = matches.find(e => !e.endsWith('.png') && !e.endsWith('.jpg') && !e.endsWith('.webp') && !e.includes('sentry') && !e.includes('wixpress'));
+      return valid || null;
+    }).catch(() => null);
+  }
+
+  private static async prepareEmailApplication(hrEmail: string, company: string, resumePath: string, atsScore: number = 85): Promise<void> {
+    const dispatchesDir = path.resolve('data/email_dispatches');
+    fs.mkdirSync(dispatchesDir, { recursive: true });
+
+    const safeCompany = (company || 'Company').replace(/[^a-zA-Z0-9]/g, '_').slice(0, 20);
+    const candidate = CANONICAL_PROFILE.candidate;
+
+    const subject = `Application for Frontend / React Developer - ${candidate.fullName} (1.5 YOE | Notice: ${candidate.noticePeriodDays} Days)`;
+
+    const body = `Dear Hiring Team @ ${company},
+
+I am writing to express my strong interest in Frontend / React Developer opportunities at ${company}.
+
+I bring 1.5+ years of hands-on production experience engineering high-performance web applications with React.js, Next.js (App Router, SSR), TypeScript, and modern state management. In my current role, I owned end-to-end frontend features for enterprise platforms and delivered a measurable ~40% reduction in initial JavaScript bundle sizes through strategic code-splitting, dynamic imports, and virtualization.
+
+Key Profile Highlights:
+• Primary Stack: React.js, Next.js, TypeScript, Tailwind CSS, Redux Toolkit / Context API, RESTful APIs
+• Experience: 1.5+ Years (Techstuff Private Limited)
+• Notice Period: 15 Days (Available for early / immediate onboarding)
+• Current CTC: 2.16 LPA | Expected CTC: 4.65 LPA (Negotiable as per role benchmarks)
+• Location: Open to Remote / Hybrid / On-site opportunities
+
+I have tailored and attached my resume (${path.basename(resumePath)}) for your review. I would welcome the opportunity to discuss how my frontend engineering skills and rapid execution can contribute to ${company}'s products.
+
+Warm regards,
+
+${candidate.fullName}
+Frontend Engineer
+Phone: ${candidate.phone}
+Email: ${candidate.email}
+Indore, India
+`;
+
+    const dispatchRecord = {
+      timestamp: new Date().toISOString(),
+      company,
+      recipientEmail: hrEmail,
+      subject,
+      body,
+      attachedResume: resumePath,
+      atsScore,
+      status: 'QUEUED_FOR_DISPATCH'
+    };
+
+    const outPath = path.join(dispatchesDir, `dispatch_${Date.now()}_${safeCompany}.json`);
+    fs.writeFileSync(outPath, JSON.stringify(dispatchRecord, null, 2), 'utf8');
+    console.log(`   📨 Email application drafted & queued: ${path.basename(outPath)} -> ${hrEmail}`);
   }
 }

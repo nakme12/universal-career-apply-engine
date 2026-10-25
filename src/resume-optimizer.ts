@@ -52,7 +52,7 @@ export const BASE_CANDIDATE_PROFILE = {
     {
       company: "Techstuff Private Limited",
       role: "Frontend Engineer",
-      duration: "June 2024 – Present",
+      duration: "May 2025 – Present",
       location: "Indore, India",
       bullets: [
         "Core contributor to Mercanis (B2B SaaS Procurement Platform) and internal enterprise systems; own frontend features end to end across SvelteKit, Next.js, and TypeScript.",
@@ -63,7 +63,7 @@ export const BASE_CANDIDATE_PROFILE = {
     {
       company: "Techstuff Private Limited",
       role: "Frontend Developer Intern",
-      duration: "Dec 2023 – May 2024",
+      duration: "Feb 2025 – May 2025",
       location: "Indore, India",
       bullets: [
         "Integrated REST APIs into production screens and resolved critical cross-browser UI/UX issues, reducing QA reopen tickets.",
@@ -198,7 +198,7 @@ export class AtsResumeOptimizer {
     fs.mkdirSync(TAILORED_DIR, { recursive: true });
 
     const evaluation = this.evaluateAts(jdText);
-    const safeCompany = companyName.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 15);
+    const safeCompany = (companyName || 'Company').replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '').slice(0, 30);
     const evalLogPath = path.join(TAILORED_DIR, `ats_eval_${safeCompany}.json`);
     fs.writeFileSync(evalLogPath, JSON.stringify(evaluation, null, 2), 'utf8');
 
@@ -208,11 +208,13 @@ export class AtsResumeOptimizer {
     console.log(`   Missing: [${evaluation.missingKeywords.join(', ')}]`);
     console.log(`   Feedback: ${evaluation.overallFeedback}`);
 
-    // Quality Rule: If score is already >= 75%, use default verified resume
+    // Quality Rule: If score is already >= 75%, use default verified resume formatted with company name
     if (evaluation.isGoodMatch && fs.existsSync(BASE_RESUME_PATH)) {
-      console.log(`   ✅ Default resume meets high ATS standards (Score: ${evaluation.atsScore} >= 75). Using default.`);
+      console.log(`   ✅ Default resume meets high ATS standards (Score: ${evaluation.atsScore} >= 75).`);
+      const companyResumePath = path.join(TAILORED_DIR, `Pratik_Patidar_Resume_${safeCompany}.pdf`);
+      fs.copyFileSync(BASE_RESUME_PATH, companyResumePath);
       return {
-        resumePath: BASE_RESUME_PATH,
+        resumePath: companyResumePath,
         originalScore: evaluation.atsScore,
         finalScore: evaluation.atsScore,
         tailored: false,
