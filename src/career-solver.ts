@@ -527,29 +527,37 @@ export class UniversalCareerSolver {
     const safeCompany = (company || 'Company').replace(/[^a-zA-Z0-9]/g, '_').slice(0, 20);
     const candidate = CANONICAL_PROFILE.candidate;
 
-    const subject = `Application for Frontend / React Developer - ${candidate.fullName} (1.5 YOE | Notice: ${candidate.noticePeriodDays} Days)`;
+    const subject = `Frontend / React Developer Application - ${candidate.fullName} (1.5 YOE, 15 Days Notice)`;
 
-    const body = `Dear Hiring Team @ ${company},
+    const body = `Hi Team @ ${company},
 
-I am writing to express my strong interest in Frontend / React Developer opportunities at ${company}.
+I'm Pratik Patidar, a Frontend Developer with 1.5 years of production experience working primarily with React.js, Next.js, and TypeScript.
 
-I bring 1.5+ years of hands-on production experience engineering high-performance web applications with React.js, Next.js (App Router, SSR), TypeScript, and modern state management. In my current role, I owned end-to-end frontend features for enterprise platforms and delivered a measurable ~40% reduction in initial JavaScript bundle sizes through strategic code-splitting, dynamic imports, and virtualization.
+I'm writing regarding Frontend / React Developer openings at ${company}.
 
-Key Profile Highlights:
-• Primary Stack: React.js, Next.js, TypeScript, Tailwind CSS, Redux Toolkit / Context API, RESTful APIs
-• Experience: 1.5+ Years (Techstuff Private Limited)
-• Notice Period: 15 Days (Available for early / immediate onboarding)
-• Current CTC: 2.16 LPA | Expected CTC: 4.65 LPA (Negotiable as per role benchmarks)
-• Location: Open to Remote / Hybrid / On-site opportunities
+A quick summary of what I've worked on:
+• At Techstuff Private Limited, I've been building core web interfaces for Mercanis (B2B SaaS platform) and internal enterprise tools using React/Next.js/TypeScript.
+• Reduced initial JS bundle size by ~40% using route-based code splitting, dynamic imports, and table virtualization on heavy datasets.
+• Full feature ownership from Figma designs to REST API integration (also comfortable writing Node/NestJS backend endpoints when needed).
 
-I have tailored and attached my resume (${path.basename(resumePath)}) for your review. I would welcome the opportunity to discuss how my frontend engineering skills and rapid execution can contribute to ${company}'s products.
+Quick details:
+• Experience: 1.5 Years (Frontend / Full Stack)
+• Current CTC: 2.16 LPA
+• Expected CTC: 4.65 LPA (flexible based on company standards)
+• Notice Period: 15 Days (can join immediately / on short notice)
+• Location Preference: Remote / Hybrid / On-site
 
-Warm regards,
+Portfolio: https://pratik-portfolio-nine-orcin.vercel.app
+GitHub: https://github.com/pratikpatidar
+LinkedIn: https://www.linkedin.com/in/pratik-patidar
 
-${candidate.fullName}
-Frontend Engineer
-Phone: ${candidate.phone}
-Email: ${candidate.email}
+I've attached my resume (${path.basename(resumePath)}) tailored for ${company}. Would love to connect if my profile aligns with your team's current requirements.
+
+Best regards,
+
+Pratik Patidar
++91 8269647990
+pratikpatidar7990@gmail.com
 Indore, India
 `;
 

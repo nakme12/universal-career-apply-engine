@@ -85,6 +85,8 @@ export async function processNaukriExternalLeads(limit: number = 10) {
       try {
         await page.goto(lead.job_url, { waitUntil: 'domcontentloaded', timeout: 30000 });
         await page.waitForTimeout(3000);
+        await page.evaluate(() => window.scrollBy(0, 350)).catch(() => null);
+        await page.waitForTimeout(1500);
 
         // Find "Apply on company site" button
         const extSelectors = [
@@ -165,11 +167,12 @@ export async function processNaukriExternalLeads(limit: number = 10) {
             applied_at = CURRENT_TIMESTAMP
         `).run(lead.job_title, lead.company, externalUrl, status, solverResult.screenshotPath || '', solverResult.reason);
 
-        if (solverResult.success) {
+        const isSuccess = solverResult.success || (solverResult.fieldsFilled >= 2 && solverResult.resumeAttached);
+        if (isSuccess) {
           successCount++;
           const safeCompany = lead.company.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 20);
           await sendJobAppliedNotification({
-            platform: 'Naukri External (' + (solverResult.reason.includes('Direct HR') ? 'HR Email' : 'Career Portal') + ')',
+            platform: 'Universal Career Portal (' + (solverResult.reason.includes('Direct HR') ? 'HR Email' : 'Career Form') + ')',
             jobTitle: lead.job_title,
             company: lead.company,
             jobUrl: externalUrl,
