@@ -37,18 +37,38 @@ export class UniversalCareerSolver {
         const req = res.request();
         const method = req.method();
         const url = res.url().toLowerCase();
+
+        // STRICT: Exclude analytics, telemetry, and tracking endpoints
+        const isTelemetry = url.includes('google-analytics') || 
+                            url.includes('googletagmanager') || 
+                            url.includes('analytics') || 
+                            url.includes('doubleclick') || 
+                            url.includes('sentry') || 
+                            url.includes('facebook') || 
+                            url.includes('clarity.ms') || 
+                            url.includes('hotjar') || 
+                            url.includes('datadog') || 
+                            url.includes('segment.io');
+        if (isTelemetry) return;
+
         if (method === 'POST') {
-          const isRelevant = url.includes('apply') || 
-                             url.includes('application') || 
-                             url.includes('candidate') || 
-                             url.includes('submit') || 
-                             url.includes('job') || 
-                             url.includes('admin-ajax.php') || 
-                             url.includes('greenhouse') || 
-                             url.includes('lever') || 
-                             url.includes('zoho') || 
-                             url.includes('workable') || 
-                             url.includes('bamboohr');
+          // Parse URL pathname to avoid matching query parameters that reference the page URL
+          let pathname = url;
+          try {
+            pathname = new URL(res.url()).pathname.toLowerCase();
+          } catch {}
+
+          const isRelevant = pathname.includes('apply') || 
+                             pathname.includes('application') || 
+                             pathname.includes('candidate') || 
+                             pathname.includes('submit') || 
+                             pathname.includes('admin-ajax.php') || 
+                             url.includes('greenhouse.io') || 
+                             url.includes('lever.co') || 
+                             url.includes('zohorecruit.com') || 
+                             url.includes('workable.com') || 
+                             url.includes('bamboohr.com');
+
           if (isRelevant) {
             const status = res.status();
             if (status >= 200 && status < 300) {
