@@ -111,6 +111,36 @@ export class UniversalCareerSolver {
       }
       await page.waitForTimeout(3500);
 
+      // Early Exit Guard: Detect expired or removed job postings (Workday, Zoho, etc.)
+      const lowerCheckText = await page.evaluate(() => (document.body.innerText || '').toLowerCase()).catch(() => '');
+      if (lowerCheckText.includes("the page you are looking for doesn't exist") ||
+          lowerCheckText.includes("job no longer available") ||
+          lowerCheckText.includes("this job opening is closed") ||
+          lowerCheckText.includes("position has been filled") ||
+          lowerCheckText.includes("job posting has expired") ||
+          lowerCheckText.includes("404 not found")) {
+        console.log(`   ⚠️ Job posting is expired/closed on portal: ${targetUrl}`);
+        return {
+          success: false,
+          reason: 'Job posting is expired or closed on employer portal',
+          url: targetUrl,
+          domain,
+          fieldsFilled: 0,
+          resumeAttached: false,
+          tailoredResumeUsed: false,
+          atsScore: 0,
+          screenshotPath: undefined
+        };
+      }
+
+      // Auto-dismiss / remove Cookie Freeze Layers & Backdrop Overlays (Zoho .cw-cookie-freeze-layer, OneTrust, etc.)
+      await page.evaluate(() => {
+        const freezeEls = document.querySelectorAll('.cw-cookie-freeze-layer, career-cookie-consent, #onetrust-consent-sdk, .cookie-consent, [class*="cookie-freeze" i], [class*="cookie-backdrop" i], [id*="cookie-consent" i]');
+        freezeEls.forEach(e => e.remove());
+        const acceptBtn = document.querySelector('button#onetrust-accept-btn-handler, .cw-cookie-accept-btn, button:has-text("Accept All"), button:has-text("Accept Cookies")');
+        if (acceptBtn) (acceptBtn as HTMLElement).click();
+      }).catch(() => null);
+
       // Evaluate ATS score & get optimized resume (default vs tailored)
       const pageText = await page.evaluate(() => document.body.innerText).catch(() => '');
       const optResult = await AtsResumeOptimizer.getOptimizedResume(pageText, companyName || domain);
