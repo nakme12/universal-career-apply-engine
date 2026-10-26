@@ -604,14 +604,10 @@ export async function compileAllResumes() {
     });
     console.log(`✅ Saved canonical: ${canonicalPdf}`);
 
-    // 2. Synchronize to job-search-mcp-engine/resumes
-    // User instruction: Strictly the 3 updated canonical resumes in job-search-mcp-engine
-    // (REACT, FE, FS)
-    if (variant.key === 'REACT' || variant.key === 'FE' || variant.key === 'FS') {
-      const jobSearchPdf = path.join(jobSearchResumesDir, variant.fileName);
-      fs.copyFileSync(canonicalPdf, jobSearchPdf);
-      console.log(`✅ Synced to job-search-mcp-engine: ${jobSearchPdf}`);
-    }
+    // 2. Synchronize to job-search-mcp-engine/resumes (all 4 variants)
+    const jobSearchPdf = path.join(jobSearchResumesDir, variant.fileName);
+    fs.copyFileSync(canonicalPdf, jobSearchPdf);
+    console.log(`✅ Synced to job-search-mcp-engine: ${jobSearchPdf}`);
 
     // 3. If Frontend Engineer, sync default resume.pdf
     if (variant.key === 'FE') {
@@ -631,7 +627,8 @@ export async function compileAllResumes() {
   const allowedInJobSearch = new Set([
     'Pratik_Patidar_Resume_React_Developer.pdf',
     'Pratik_Patidar_Resume_Frontend_Engineer.pdf',
-    'Pratik_Patidar_Resume_Full_Stack_Developer.pdf'
+    'Pratik_Patidar_Resume_Full_Stack_Developer.pdf',
+    'Pratik_Patidar_Resume_MERN_Stack_Developer.pdf'
   ]);
 
   const existingFiles = fs.readdirSync(jobSearchResumesDir);
