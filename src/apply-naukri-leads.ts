@@ -179,7 +179,8 @@ export async function processNaukriExternalLeads(limit: number = 10) {
             atsScore: solverResult.atsScore || 85,
             resumeUsed: `Pratik_Patidar_Resume_${safeCompany}.pdf`,
             type: solverResult.reason.includes('Direct HR') ? 'EMAIL_DISPATCH' : 'WEB_FORM',
-            recipientEmail: solverResult.recipientEmail
+            recipientEmail: solverResult.recipientEmail,
+            screenshotPath: solverResult.screenshotPath
           }).catch(() => null);
         }
 
