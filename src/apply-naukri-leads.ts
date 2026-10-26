@@ -155,7 +155,7 @@ export async function processNaukriExternalLeads(limit: number = 10) {
         console.log(`   ATS Score: ${solverResult.atsScore || 'N/A'} | Fields Filled: ${solverResult.fieldsFilled} | Resume Attached: ${solverResult.resumeAttached}`);
         if (solverResult.screenshotPath) console.log(`   Proof Screenshot: ${solverResult.screenshotPath}`);
 
-        const status = solverResult.success ? 'APPLIED' : (solverResult.fieldsFilled >= 2 ? 'SUBMITTED_UNVERIFIED' : 'MANUAL_REQUIRED');
+        const status = solverResult.success ? 'APPLIED' : (solverResult.recipientEmail ? 'HR_EMAIL_DRAFTED' : 'MANUAL_REQUIRED');
         
         sharedDb.prepare(`
           INSERT INTO leads_queue (source_portal, job_title, company, destination_url, status, screenshot_path, reason, applied_at)
@@ -167,19 +167,19 @@ export async function processNaukriExternalLeads(limit: number = 10) {
             applied_at = CURRENT_TIMESTAMP
         `).run(lead.job_title, lead.company, externalUrl, status, solverResult.screenshotPath || '', solverResult.reason);
 
-        const isSuccess = solverResult.success || (solverResult.fieldsFilled >= 2 && solverResult.resumeAttached);
+        // STRICT: Only genuine verified DOM confirmations are notified as APPLIED
+        const isSuccess = solverResult.success === true;
         if (isSuccess) {
           successCount++;
           const safeCompany = lead.company.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 20);
           await sendJobAppliedNotification({
-            platform: 'Universal Career Portal (' + (solverResult.reason.includes('Direct HR') ? 'HR Email' : 'Career Form') + ')',
+            platform: 'Universal Career Portal (Verified Submission)',
             jobTitle: lead.job_title,
             company: lead.company,
             jobUrl: externalUrl,
             atsScore: solverResult.atsScore || 85,
             resumeUsed: `Pratik_Patidar_Resume_${safeCompany}.pdf`,
-            type: solverResult.reason.includes('Direct HR') ? 'EMAIL_DISPATCH' : 'WEB_FORM',
-            recipientEmail: solverResult.recipientEmail,
+            type: 'WEB_FORM',
             screenshotPath: solverResult.screenshotPath
           }).catch(() => null);
         }

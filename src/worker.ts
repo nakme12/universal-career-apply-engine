@@ -65,26 +65,25 @@ export class CareerQueueWorker {
 
         const result = await UniversalCareerSolver.applyToUrl(context, lead.destination_url, lead.company);
 
-        const newStatus = result.success ? 'APPLIED' : (result.fieldsFilled >= 2 ? 'SUBMITTED_UNVERIFIED' : 'MANUAL_REQUIRED');
+        const newStatus = result.success ? 'APPLIED' : (result.recipientEmail ? 'HR_EMAIL_DRAFTED' : 'MANUAL_REQUIRED');
         this.db.prepare(`
           UPDATE leads_queue 
           SET status = ?, screenshot_path = ?, reason = ?, applied_at = CURRENT_TIMESTAMP
           WHERE id = ?
         `).run(newStatus, result.screenshotPath || '', result.reason, lead.id);
 
-        const isSuccess = result.success || (result.fieldsFilled >= 2 && result.resumeAttached);
-        if (isSuccess) {
+        // STRICT ASSERTION: ONLY send Telegram alert if result.success is TRUE (confirmed on DOM)
+        if (result.success === true) {
           appliedCount++;
           const safeCompany = lead.company.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 20);
           await sendJobAppliedNotification({
-            platform: 'Universal Career Portal (' + (result.reason.includes('Direct HR') ? 'HR Email' : 'Career Form') + ')',
+            platform: 'Universal Career Portal (Verified Submission)',
             jobTitle: lead.job_title,
             company: lead.company,
             jobUrl: lead.destination_url,
             atsScore: result.atsScore || 85,
             resumeUsed: `Pratik_Patidar_Resume_${safeCompany}.pdf`,
-            type: result.reason.includes('Direct HR') ? 'EMAIL_DISPATCH' : 'WEB_FORM',
-            recipientEmail: result.recipientEmail,
+            type: 'WEB_FORM',
             screenshotPath: result.screenshotPath
           }).catch(() => null);
         }

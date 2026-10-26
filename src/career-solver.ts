@@ -164,18 +164,47 @@ export class UniversalCareerSolver {
       const safeName = (companyName || domain).replace(/[^a-zA-Z0-9]/g, '_').slice(0, 15);
       const screenshotPath = path.join(SCREENSHOTS_DIR, `apply_${Date.now()}_${safeName}.png`);
 
+      // Step 5.8: Check mandatory agreement / privacy policy checkboxes
+      try {
+        const checkboxes = activeContainer.locator('input[type="checkbox"]');
+        const cbCount = await checkboxes.count();
+        for (let i = 0; i < cbCount; i++) {
+          const cb = checkboxes.nth(i);
+          if (await cb.isVisible().catch(() => false)) {
+            await cb.check({ force: true }).catch(() => null);
+            console.log(`   ☑️ Checked agreement/policy checkbox #${i + 1}`);
+          }
+        }
+      } catch {}
+
       if (fillCount >= 2 && submitBtn) {
         console.log(`   Form ready with ${fillCount} fields filled! Submitting application (ATS: ${optResult.finalScore}/100)...`);
         await submitBtn.click().catch(() => null);
-        await page.waitForTimeout(5000);
+        await page.waitForTimeout(6000);
 
-        // Verify confirmation
+        // STRICT DOM Confirmation Assertion
         const confirmed = await this.checkConfirmation(page);
         await page.screenshot({ path: screenshotPath }).catch(() => null);
 
+        if (!confirmed) {
+          console.log(`   ❌ Submission NOT verified on DOM (no success banner). Rejecting false positive.`);
+          return {
+            success: false,
+            reason: `Submit clicked but no DOM confirmation received (validation error, captcha, or unverified)`,
+            url: targetUrl,
+            domain,
+            fieldsFilled: fillCount,
+            resumeAttached,
+            tailoredResumeUsed: optResult.tailored,
+            atsScore: optResult.finalScore,
+            screenshotPath
+          };
+        }
+
+        console.log(`   ✅ Confirmed application submitted on DOM!`);
         return {
-          success: confirmed || fillCount >= 3,
-          reason: confirmed ? 'Confirmed application submitted on DOM' : `Form submitted (${fillCount} fields filled, resume attached)`,
+          success: true,
+          reason: 'Confirmed application submitted on DOM (verified confirmation banner)',
           url: targetUrl,
           domain,
           fieldsFilled: fillCount,
@@ -192,12 +221,12 @@ export class UniversalCareerSolver {
           await this.prepareEmailApplication(hrEmail, companyName || domain, optResult.resumePath, optResult.finalScore);
           await page.screenshot({ path: screenshotPath }).catch(() => null);
           return {
-            success: true,
-            reason: `Direct HR application prepared for ${hrEmail} with tailored resume attached`,
+            success: false, // Honest: Email discovered, NOT applied via web form
+            reason: `HR Email detected (${hrEmail}) - application drafted locally, not submitted`,
             url: targetUrl,
             domain,
-            fieldsFilled: 1,
-            resumeAttached: true,
+            fieldsFilled: 0,
+            resumeAttached: false,
             tailoredResumeUsed: optResult.tailored,
             atsScore: optResult.finalScore,
             screenshotPath,
