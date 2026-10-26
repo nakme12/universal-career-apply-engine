@@ -28,6 +28,42 @@ export class UniversalCareerSolver {
     fs.mkdirSync(SCREENSHOTS_DIR, { recursive: true });
 
     const page = await context.newPage();
+    let networkSubmissionConfirmed = false;
+    let networkSubmissionError: string | null = null;
+
+    // REA Network Interceptor: Track actual AJAX/API submission endpoints (Greenhouse, Lever, Zoho, WordPress, custom POSTs)
+    const onResponse = (res: any) => {
+      try {
+        const req = res.request();
+        const method = req.method();
+        const url = res.url().toLowerCase();
+        if (method === 'POST') {
+          const isRelevant = url.includes('apply') || 
+                             url.includes('application') || 
+                             url.includes('candidate') || 
+                             url.includes('submit') || 
+                             url.includes('job') || 
+                             url.includes('admin-ajax.php') || 
+                             url.includes('greenhouse') || 
+                             url.includes('lever') || 
+                             url.includes('zoho') || 
+                             url.includes('workable') || 
+                             url.includes('bamboohr');
+          if (isRelevant) {
+            const status = res.status();
+            if (status >= 200 && status < 300) {
+              networkSubmissionConfirmed = true;
+              console.log('   [Network Interceptor] Verified successful application POST response: HTTP ' + status + ' [' + res.url().slice(0, 60) + ']');
+            } else if (status >= 400) {
+              networkSubmissionError = 'HTTP ' + status;
+              console.log('   [Network Interceptor] Submission error response: HTTP ' + status + ' [' + res.url().slice(0, 60) + ']');
+            }
+          }
+        }
+      } catch {}
+    };
+    page.on('response', onResponse);
+
     let domain = 'unknown';
     try {
       domain = new URL(targetUrl).hostname;
@@ -182,15 +218,22 @@ export class UniversalCareerSolver {
         await submitBtn.click().catch(() => null);
         await page.waitForTimeout(6000);
 
-        // STRICT DOM Confirmation Assertion
-        const confirmed = await this.checkConfirmation(page);
+        // Check for visible validation errors on DOM
+        const validationError = await activeContainer.evaluate(() => {
+          const errs = Array.from(document.querySelectorAll('.error, .is-invalid, .invalid-feedback, .wpcf7-not-valid-tip, [aria-invalid="true"]'));
+          const visible = errs.find(el => (el as any).offsetParent !== null && (el.textContent || '').trim().length > 0);
+          return visible ? visible.textContent?.trim() : null;
+        }).catch(() => null);
+
+        // STRICT Dual Confirmation Assertion: DOM banner OR verified HTTP 2xx POST response
+        const domConfirmed = await this.checkConfirmation(page, activeContainer);
         await page.screenshot({ path: screenshotPath }).catch(() => null);
 
-        if (!confirmed) {
-          console.log(`   ❌ Submission NOT verified on DOM (no success banner). Rejecting false positive.`);
+        if (validationError) {
+          console.log(`   ❌ Form validation error detected: "${validationError}". Rejecting unsubmitted form.`);
           return {
             success: false,
-            reason: `Submit clicked but no DOM confirmation received (validation error, captcha, or unverified)`,
+            reason: `Form validation error: ${validationError}`,
             url: targetUrl,
             domain,
             fieldsFilled: fillCount,
@@ -201,10 +244,25 @@ export class UniversalCareerSolver {
           };
         }
 
-        console.log(`   ✅ Confirmed application submitted on DOM!`);
+        if (!domConfirmed && !networkSubmissionConfirmed) {
+          console.log(`   ❌ Submission NOT verified (no DOM success banner and no 2xx network response). Rejecting false positive.`);
+          return {
+            success: false,
+            reason: `Submit clicked but unconfirmed (DOM unverified, network status: ${networkSubmissionError || 'none'})`,
+            url: targetUrl,
+            domain,
+            fieldsFilled: fillCount,
+            resumeAttached,
+            tailoredResumeUsed: optResult.tailored,
+            atsScore: optResult.finalScore,
+            screenshotPath
+          };
+        }
+
+        console.log(`   ✅ Confirmed application submitted! (${domConfirmed ? 'DOM banner verified' : 'Network 2xx POST verified'})`);
         return {
           success: true,
-          reason: 'Confirmed application submitted on DOM (verified confirmation banner)',
+          reason: domConfirmed ? 'Confirmed application submitted on DOM (verified confirmation banner)' : 'Confirmed application submitted via verified HTTP 2xx POST',
           url: targetUrl,
           domain,
           fieldsFilled: fillCount,
@@ -474,6 +532,41 @@ export class UniversalCareerSolver {
       filled++;
     }
 
+    // K. LinkedIn Profile URL
+    const linkedin = container.locator('input[name*="linkedin" i], input[id*="linkedin" i], input[placeholder*="linkedin" i]');
+    if ((await linkedin.count()) > 0 && (await linkedin.first().isVisible().catch(() => false))) {
+      await linkedin.first().fill((candidate as any).linkedinUrl || 'https://www.linkedin.com/in/pratik-patidar').catch(() => null);
+      filled++;
+    }
+
+    // L. GitHub Profile URL
+    const github = container.locator('input[name*="github" i], input[id*="github" i], input[placeholder*="github" i]');
+    if ((await github.count()) > 0 && (await github.first().isVisible().catch(() => false))) {
+      await github.first().fill((candidate as any).githubUrl || 'https://github.com/pratikpatidar').catch(() => null);
+      filled++;
+    }
+
+    // M. Portfolio / Website URL
+    const website = container.locator('input[name*="portfolio" i], input[id*="portfolio" i], input[placeholder*="portfolio" i], input[name*="website" i], input[id*="website" i], input[placeholder*="website" i], input[name*="url" i]:not([name*="linkedin" i]):not([name*="github" i])');
+    if ((await website.count()) > 0 && (await website.first().isVisible().catch(() => false))) {
+      await website.first().fill((candidate as any).portfolioUrl || 'https://pratik-portfolio-nine-orcin.vercel.app').catch(() => null);
+      filled++;
+    }
+
+    // N. Location / City
+    const city = container.locator('input[name*="city" i], input[id*="city" i], input[name*="location" i], input[id*="location" i], input[placeholder*="city" i], input[placeholder*="location" i], input[name*="address" i]');
+    if ((await city.count()) > 0 && (await city.first().isVisible().catch(() => false))) {
+      await city.first().fill(candidate.currentLocation).catch(() => null);
+      filled++;
+    }
+
+    // O. College / Education
+    const edu = container.locator('input[name*="college" i], input[id*="college" i], input[name*="university" i], input[id*="university" i], input[placeholder*="college" i], input[placeholder*="university" i], input[placeholder*="school" i]');
+    if ((await edu.count()) > 0 && (await edu.first().isVisible().catch(() => false))) {
+      await edu.first().fill(candidate.education.college).catch(() => null);
+      filled++;
+    }
+
     return filled;
   }
 
@@ -505,20 +598,37 @@ export class UniversalCareerSolver {
     }).catch(() => null);
   }
 
-  private static async checkConfirmation(page: Page): Promise<boolean> {
-    return page.evaluate(() => {
-      const text = (document.body.innerText || '').toLowerCase();
+  private static async checkConfirmation(page: Page, activeContainer?: Page | Frame): Promise<boolean> {
+    const isSuccessText = (text: string) => {
+      const lower = (text || '').toLowerCase();
       return (
-        text.includes('thank you') ||
-        text.includes('application submitted') ||
-        text.includes('application has been submitted') ||
-        text.includes('successfully applied') ||
-        text.includes('received your application') ||
-        text.includes('thanks for applying') ||
-        text.includes('application received') ||
-        text.includes('we will get back to you')
+        lower.includes('thank you') ||
+        lower.includes('application submitted') ||
+        lower.includes('application has been submitted') ||
+        lower.includes('successfully applied') ||
+        lower.includes('received your application') ||
+        lower.includes('thanks for applying') ||
+        lower.includes('application received') ||
+        lower.includes('we will get back to you') ||
+        lower.includes('application was sent') ||
+        lower.includes('response has been recorded')
       );
-    }).catch(() => false);
+    };
+
+    const mainText = await page.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
+    if (isSuccessText(mainText)) return true;
+
+    if (activeContainer && activeContainer !== page) {
+      const containerText = await activeContainer.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
+      if (isSuccessText(containerText)) return true;
+    }
+
+    for (const frame of page.frames()) {
+      const fText = await frame.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
+      if (isSuccessText(fText)) return true;
+    }
+
+    return false;
   }
 
   private static async extractHrEmail(page: Page): Promise<string | null> {
