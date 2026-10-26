@@ -272,7 +272,16 @@ export class UniversalCareerSolver {
         // Check for visible validation errors and error banners on DOM (Gravity Forms, WordPress, Bootstrap, custom)
         const validationError = await activeContainer.evaluate(() => {
           const errEls = Array.from(document.querySelectorAll('.gform_validation_errors, .validation_error, .field_error, .text-danger, .alert-danger, .form-error, .error, .is-invalid, .invalid-feedback, .wpcf7-not-valid-tip, [aria-invalid="true"]'));
-          const visible = errEls.find(el => (el as any).offsetParent !== null && (el.textContent || '').trim().length > 0);
+          const visible = errEls.find(el => {
+            if ((el as any).offsetParent === null) return false;
+            if (['SELECT', 'OPTION', 'OPTGROUP'].includes(el.tagName)) return false;
+            if (el.querySelector('select, option')) return false;
+            const t = (el.textContent || '').trim();
+            if (t.length === 0 || t.length > 200) return false;
+            if (t === '*' || t === '•' || t.startsWith('*') || t.endsWith('*') || t.toLowerCase() === 'required') return false;
+            if (t.includes('+91') || t.includes('+1') || t.includes('Country Code')) return false;
+            return true;
+          });
           if (visible) return visible.textContent?.trim() || 'Form validation error';
 
           const text = (document.body.innerText || '').toLowerCase();
@@ -289,7 +298,6 @@ export class UniversalCareerSolver {
 
         // STRICT DOM Confirmation Assertion: Positive confirmation banner is MANDATORY
         const domConfirmed = await this.checkConfirmation(page, activeContainer, lastDialogMessage, networkSubmissionConfirmed);
-        await page.screenshot({ path: screenshotPath }).catch(() => null);
 
         if (validationError) {
           console.log(`   ❌ Form validation error detected: "${validationError}". Rejecting unsubmitted form.`);
@@ -302,7 +310,7 @@ export class UniversalCareerSolver {
             resumeAttached,
             tailoredResumeUsed: optResult.tailored,
             atsScore: optResult.finalScore,
-            screenshotPath
+            screenshotPath: undefined
           };
         }
 
@@ -318,11 +326,13 @@ export class UniversalCareerSolver {
             resumeAttached,
             tailoredResumeUsed: optResult.tailored,
             atsScore: optResult.finalScore,
-            screenshotPath
+            screenshotPath: undefined
           };
         }
 
         console.log(`   ✅ Confirmed application submitted! (DOM banner verified)`);
+        await page.screenshot({ path: screenshotPath }).catch(() => null);
+        console.log(`   📸 Saved verified proof screenshot: ${path.basename(screenshotPath)}`);
         return {
           success: true,
           reason: 'Confirmed application submitted on DOM (verified confirmation banner)',
@@ -340,7 +350,6 @@ export class UniversalCareerSolver {
         if (hrEmail) {
           console.log(`   📧 Direct HR Email detected on career page: ${hrEmail}`);
           await this.prepareEmailApplication(hrEmail, companyName || domain, optResult.resumePath, optResult.finalScore);
-          await page.screenshot({ path: screenshotPath }).catch(() => null);
           return {
             success: false, // Honest: Email discovered, NOT applied via web form
             reason: `HR Email detected (${hrEmail}) - application drafted locally, not submitted`,
@@ -350,12 +359,11 @@ export class UniversalCareerSolver {
             resumeAttached: false,
             tailoredResumeUsed: optResult.tailored,
             atsScore: optResult.finalScore,
-            screenshotPath,
+            screenshotPath: undefined,
             recipientEmail: hrEmail
           };
         }
 
-        await page.screenshot({ path: screenshotPath }).catch(() => null);
         return {
           success: false,
           reason: fillCount < 2 ? 'No direct form fields found (requires custom login or account creation)' : 'Submit button not located',
@@ -365,7 +373,7 @@ export class UniversalCareerSolver {
           resumeAttached,
           tailoredResumeUsed: optResult.tailored,
           atsScore: optResult.finalScore,
-          screenshotPath
+          screenshotPath: undefined
         };
       }
 
@@ -564,6 +572,49 @@ export class UniversalCareerSolver {
       filled++;
     }
 
+    // D.0 Country Code (+91 / India)
+    try {
+      const ccSelectors = [
+        'select:has(option[value*="+91"])',
+        'select:has(option[value="IN"])',
+        'select:has(option:has-text("+91"))',
+        'select[name*="countrycode" i]',
+        'select[name*="country_code" i]',
+        'select[name*="phone_code" i]',
+        'select[id*="countrycode" i]',
+        'select[id*="country_code" i]',
+        '.country-code select',
+        '.phone-input select'
+      ];
+      for (const cSel of ccSelectors) {
+        const cc = container.locator(cSel).first();
+        if ((await cc.count()) > 0 && (await cc.isVisible().catch(() => false))) {
+          await cc.selectOption({ label: 'India (+91)' }).catch(() => {
+            cc.selectOption({ value: '+91' }).catch(() => {
+              cc.selectOption({ value: 'IN' }).catch(() => {
+                cc.selectOption({ label: '+91' }).catch(() => null);
+              });
+            });
+          });
+          console.log('   🇮🇳 Selected Country Code: +91 / India');
+          filled++;
+          break;
+        }
+      }
+
+      // Handle custom div/dropdown pickers (Keka, ng-select, intl-tel-input)
+      const ccPicker = container.locator('.country-select, [class*="country-code" i], [class*="dial-code" i], .flag-container, .iti__flag-container').first();
+      if ((await ccPicker.count()) > 0 && (await ccPicker.isVisible().catch(() => false))) {
+        await ccPicker.click().catch(() => null);
+        const inOption = container.locator('li:has-text("India"), div:has-text("India"), [data-dial-code="91"], [data-country-code="in"], .iti__country[data-country-code="in"]').first();
+        if ((await inOption.count()) > 0 && (await inOption.isVisible().catch(() => false))) {
+          await inOption.click().catch(() => null);
+          console.log('   🇮🇳 Selected Country Code via picker: India (+91)');
+          filled++;
+        }
+      }
+    } catch {}
+
     // D. Phone / Mobile / Contact (Selector + getByLabel)
     const phone = container.locator('input[type="tel"], input[name*="phone" i], input[name*="mobile" i], input[name*="cno" i], input[name*="contact" i], input[id*="phone" i], input[id*="mobile" i], input[id*="cno" i], input[id*="contact" i], input[placeholder*="phone" i], input[placeholder*="mobile" i], input[placeholder*="contact" i], input[autocomplete="tel"]');
     if ((await phone.count()) > 0 && (await phone.first().isVisible().catch(() => false))) {
@@ -598,26 +649,35 @@ export class UniversalCareerSolver {
       filled++;
     }
 
-    // H. Notice Period
-    const notice = container.locator('input[name*="notice" i], input[placeholder*="notice" i]');
+    // H. Notice Period / Availability
+    const notice = container.locator('input[name*="notice" i], input[placeholder*="notice" i], input[name*="availab" i], input[id*="availab" i], input[placeholder*="availab" i]');
     if ((await notice.count()) > 0 && (await notice.first().isVisible().catch(() => false))) {
       await notice.first().fill(candidate.noticePeriodDays.toString()).catch(() => null);
       filled++;
     }
 
-    // I. Current CTC
-    const ctc = container.locator('input[name*="current_ctc" i], input[name*="currentctc" i], input[placeholder*="current ctc" i]');
+    // I. Current CTC / Salary
+    const ctc = container.locator('input[name*="current_ctc" i], input[name*="currentctc" i], input[placeholder*="current ctc" i], input[id="currentSalary" i], input[name*="currentSalary" i], input[placeholder*="current salary" i]');
     if ((await ctc.count()) > 0 && (await ctc.first().isVisible().catch(() => false))) {
-      await ctc.fill(candidate.currentCtcLakhs.toString()).catch(() => null);
+      await ctc.fill((candidate.currentCtcLakhs * 100000).toString()).catch(() => null);
       filled++;
     }
 
-    // J. Expected CTC
-    const expCtc = container.locator('input[name*="expected_ctc" i], input[name*="expectedctc" i], input[placeholder*="expected ctc" i]');
+    // J. Expected CTC / Salary
+    const expCtc = container.locator('input[name*="expected_ctc" i], input[name*="expectedctc" i], input[placeholder*="expected ctc" i], input[id="expectedSalary" i], input[name*="expectedSalary" i], input[placeholder*="expected salary" i]');
     if ((await expCtc.count()) > 0 && (await expCtc.first().isVisible().catch(() => false))) {
-      await expCtc.fill(candidate.expectedCtcLakhs.toString()).catch(() => null);
+      await expCtc.fill((candidate.expectedCtcLakhs * 100000).toString()).catch(() => null);
       filled++;
     }
+
+    // J.1 Currency Selector (e.g. INR / USD)
+    try {
+      const curSel = container.locator('select[name*="currency" i], select[id*="currency" i]').first();
+      if ((await curSel.count()) > 0 && (await curSel.isVisible().catch(() => false))) {
+        await curSel.selectOption({ label: 'INR' }).catch(() => curSel.selectOption({ index: 1 })).catch(() => null);
+        filled++;
+      }
+    } catch {}
 
     // K. LinkedIn Profile URL
     const linkedin = container.locator('input[name*="linkedin" i], input[id*="linkedin" i], input[placeholder*="linkedin" i]');
