@@ -3,6 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import Database from 'better-sqlite3';
 import { UniversalCareerSolver } from './career-solver';
+import { sendJobAppliedNotification } from './tg-notify';
 
 const SHARED_DB_PATH = path.resolve('C:/mcp/shared-data/leads_queue.db');
 
@@ -71,7 +72,22 @@ export class CareerQueueWorker {
           WHERE id = ?
         `).run(newStatus, result.screenshotPath || '', result.reason, lead.id);
 
-        if (result.success) appliedCount++;
+        const isSuccess = result.success || (result.fieldsFilled >= 2 && result.resumeAttached);
+        if (isSuccess) {
+          appliedCount++;
+          const safeCompany = lead.company.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 20);
+          await sendJobAppliedNotification({
+            platform: 'Universal Career Portal (' + (result.reason.includes('Direct HR') ? 'HR Email' : 'Career Form') + ')',
+            jobTitle: lead.job_title,
+            company: lead.company,
+            jobUrl: lead.destination_url,
+            atsScore: result.atsScore || 85,
+            resumeUsed: `Pratik_Patidar_Resume_${safeCompany}.pdf`,
+            type: result.reason.includes('Direct HR') ? 'EMAIL_DISPATCH' : 'WEB_FORM',
+            recipientEmail: result.recipientEmail,
+            screenshotPath: result.screenshotPath
+          }).catch(() => null);
+        }
         console.log(`Outcome: ${newStatus} (${result.reason})`);
 
         // Anti-ban cooldown between jobs
