@@ -79,3 +79,41 @@ ${params.jobUrl ? `🔗 *Portal URL:* [View Career Page](${params.jobUrl})` : ''
     req.end();
   });
 }
+
+export async function sendLoginRequiredNotification(portal: string, queuedCount: number): Promise<boolean> {
+  const istTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
+
+  const text = `⚠️ *[${portal}] Login Required / Session Saved*
+━━━━━━━━━━━━━━━━━━━━━━
+🏢 *Portal:* ${portal}
+📋 *Jobs Saved in Queue:* \`${queuedCount}\`
+🕒 *Time:* \`${istTime} IST\`
+💡 *Note:* Active session not found or expired. All matching jobs are securely queued in database. As soon as login is available, they will be auto-applied.
+━━━━━━━━━━━━━━━━━━━━━━`;
+
+  const payload = JSON.stringify({
+    chat_id: CHAT_ID,
+    text,
+    parse_mode: 'Markdown',
+    disable_web_page_preview: true
+  });
+
+  return new Promise((resolve) => {
+    const req = https.request(
+      `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(payload)
+        }
+      },
+      (res) => {
+        resolve(res.statusCode === 200);
+      }
+    );
+    req.on('error', () => resolve(false));
+    req.write(payload);
+    req.end();
+  });
+}
