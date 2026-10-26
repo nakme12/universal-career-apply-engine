@@ -2,8 +2,9 @@ import { chromium, firefox } from 'playwright';
 import path from 'node:path';
 import fs from 'node:fs';
 
-const BASE_RESUME_PATH = path.resolve('data/resume.pdf');
-const TAILORED_DIR = path.resolve('data/tailored_resumes');
+const ENGINE_ROOT = path.resolve(__dirname, '..');
+const BASE_RESUME_PATH = path.join(ENGINE_ROOT, 'data/resume.pdf');
+const TAILORED_DIR = path.join(ENGINE_ROOT, 'data/tailored_resumes');
 
 export interface AtsEvaluationResult {
   atsScore: number;

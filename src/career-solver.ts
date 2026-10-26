@@ -4,8 +4,9 @@ import fs from 'node:fs';
 import { CANONICAL_PROFILE } from './config';
 import { AtsResumeOptimizer } from './resume-optimizer';
 
-const BASE_RESUME_PATH = path.resolve('data/resume.pdf');
-const SCREENSHOTS_DIR = path.resolve('screenshots');
+const ENGINE_ROOT = path.resolve(__dirname, '..');
+const BASE_RESUME_PATH = path.join(ENGINE_ROOT, 'data/resume.pdf');
+const SCREENSHOTS_DIR = path.join(ENGINE_ROOT, 'screenshots');
 
 export interface CareerApplyResult {
   success: boolean;
@@ -30,6 +31,16 @@ export class UniversalCareerSolver {
     const page = await context.newPage();
     let networkSubmissionConfirmed = false;
     let networkSubmissionError: string | null = null;
+    let lastDialogMessage = '';
+
+    // Browser dialog / alert handler (handles native alert() success popups)
+    page.on('dialog', async (dialog) => {
+      try {
+        lastDialogMessage = dialog.message();
+        console.log(`   💬 [Browser Dialog Detected]: "${lastDialogMessage}"`);
+        await dialog.accept();
+      } catch {}
+    });
 
     // REA Network Interceptor: Track actual AJAX/API submission endpoints (Greenhouse, Lever, Zoho, WordPress, custom POSTs)
     const onResponse = (res: any) => {
@@ -105,10 +116,10 @@ export class UniversalCareerSolver {
       const optResult = await AtsResumeOptimizer.getOptimizedResume(pageText, companyName || domain);
       const activeResumePath = optResult.resumePath;
 
-      // Step 1: Check if "Apply Now" or "Apply" button needs to be clicked to reveal form
-      const initialInputs = await this.countInputs(page);
+      // Step 1: Check if real application form fields exist, else trigger "Apply Now" / modal
+      const hasCoreFields = await this.hasRealApplicationFields(page);
 
-      if (initialInputs < 2) {
+      if (!hasCoreFields) {
         const applySelectors = [
           'button:has-text("Apply Now")',
           'a:has-text("Apply Now")',
@@ -118,17 +129,23 @@ export class UniversalCareerSolver {
           'a:has-text("Apply for this job")',
           'button:has-text("Apply Online")',
           'a:has-text("Apply Online")',
+          'button:has-text("I\'m interested")',
+          'a:has-text("I\'m interested")',
+          'button#applyBtn',
+          'a#applyBtn',
           'button:has-text("Apply")',
           'a:has-text("Apply")',
-          'a[href*="apply"]',
-          'button[class*="apply"]'
+          '.apply-button',
+          '.btn-apply',
+          'a[href*="apply" i]',
+          'button[class*="apply" i]'
         ];
 
         for (const sel of applySelectors) {
           const btn = page.locator(sel).first();
           if (await btn.isVisible().catch(() => false)) {
             console.log(`   Found inner apply action: "${sel}", clicking...`);
-            await btn.click().catch(() => null);
+            await btn.click({ force: true }).catch(() => null);
             await page.waitForTimeout(3000);
             break;
           }
@@ -203,9 +220,23 @@ export class UniversalCareerSolver {
         'button:has-text("Submit Application")',
         'button:has-text("Submit Resume")',
         'button:has-text("Send Application")',
+        'button:has-text("Send Message")',
         'button:has-text("Submit")',
+        'button:has-text("Apply Now")',
+        'button:has-text("Apply")',
+        'button:has-text("Send")',
         'input[value*="Submit" i]',
-        'input[value*="Apply" i]'
+        'input[value*="Apply" i]',
+        'input[value*="Send" i]',
+        'input.wpcf7-submit',
+        'button.btn-submit',
+        'button.submit-btn',
+        'a:has-text("Submit Application")',
+        'a:has-text("Submit")',
+        'button[id*="submit" i]',
+        'button[id*="apply" i]',
+        'button[id*="save" i]',
+        'button[class*="submit" i]'
       ];
 
       let submitBtn: any = null;
@@ -257,7 +288,7 @@ export class UniversalCareerSolver {
         }).catch(() => null);
 
         // STRICT DOM Confirmation Assertion: Positive confirmation banner is MANDATORY
-        const domConfirmed = await this.checkConfirmation(page, activeContainer);
+        const domConfirmed = await this.checkConfirmation(page, activeContainer, lastDialogMessage, networkSubmissionConfirmed);
         await page.screenshot({ path: screenshotPath }).catch(() => null);
 
         if (validationError) {
@@ -351,6 +382,18 @@ export class UniversalCareerSolver {
     } finally {
       await page.close().catch(() => null);
     }
+  }
+
+  
+  private static async hasRealApplicationFields(container: Page | Frame): Promise<boolean> {
+    return container.evaluate(() => {
+      const inputs = Array.from(document.querySelectorAll('input:not([type="hidden"]), textarea, select'));
+      const isVisible = (el: Element) => (el as HTMLElement).offsetParent !== null;
+      const hasName = inputs.some(el => isVisible(el) && /name|first|last|fname|lname/i.test((el as any).name + (el as any).id + (el as any).placeholder));
+      const hasEmail = inputs.some(el => isVisible(el) && (/email/i.test((el as any).name + (el as any).id + (el as any).placeholder) || (el as any).type === 'email'));
+      const hasResume = inputs.some(el => (el as any).type === 'file');
+      return (hasName && hasEmail) || (hasEmail && hasResume);
+    }).catch(() => false);
   }
 
   private static async countInputs(page: Page): Promise<number> {
@@ -613,7 +656,8 @@ export class UniversalCareerSolver {
     // O. College / Education & Degree (e.g. Relinns mat-input-4 degree)
     const edu = container.locator('input[name*="college" i], input[id*="college" i], input[name*="university" i], input[id*="university" i], input[placeholder*="college" i], input[placeholder*="university" i], input[placeholder*="school" i], input[placeholder*="degree" i], input[name*="degree" i]');
     if ((await edu.count()) > 0 && (await edu.first().isVisible().catch(() => false))) {
-      await edu.first().fill('BTech Computer Science').catch(() => null);
+      const eduText = `${candidate.education.degree} ${candidate.education.branch} - ${candidate.education.college}`;
+      await edu.first().fill(eduText).catch(() => null);
       filled++;
     }
 
@@ -800,7 +844,7 @@ export class UniversalCareerSolver {
     }).catch(() => null);
   }
 
-  private static async checkConfirmation(page: Page, activeContainer?: Page | Frame): Promise<boolean> {
+  private static async checkConfirmation(page: Page, activeContainer?: Page | Frame, lastDialogMessage: string = '', networkConfirmed: boolean = false): Promise<boolean> {
     const isSuccessText = (text: string) => {
       const lower = (text || '').toLowerCase();
 
@@ -815,6 +859,7 @@ export class UniversalCareerSolver {
 
       return (
         lower.includes('thank you') ||
+        lower.includes('thanks for') ||
         lower.includes('application submitted') ||
         lower.includes('application has been submitted') ||
         lower.includes('successfully applied') ||
@@ -823,21 +868,67 @@ export class UniversalCareerSolver {
         lower.includes('application received') ||
         lower.includes('we will get back to you') ||
         lower.includes('application was sent') ||
-        lower.includes('response has been recorded')
+        lower.includes('response has been recorded') ||
+        lower.includes('your message was sent') ||
+        lower.includes('message has been sent') ||
+        lower.includes('successfully sent')
       );
     };
 
+    // 1. Browser dialog / alert confirmation
+    if (lastDialogMessage && isSuccessText(lastDialogMessage)) {
+      console.log(`   ✅ Confirmation verified from browser dialog: "${lastDialogMessage}"`);
+      return true;
+    }
+
+    // 2. URL redirect confirmation (/thank-you, /success, /applied)
+    const currentUrl = page.url().toLowerCase();
+    if (currentUrl.includes('/thank') || currentUrl.includes('/success') || currentUrl.includes('/applied') || currentUrl.includes('status=success') || currentUrl.includes('applied=true')) {
+      console.log(`   ✅ Confirmation verified from URL redirect: ${page.url()}`);
+      return true;
+    }
+
+    // 3. Success notification banners / elements in DOM
+    const hasSuccessElement = await page.evaluate(() => {
+      const successSelectors = [
+        '.alert-success', '.toast-success', '.swal2-success', '.wpcf7-mail-sent-ok',
+        '.success-message', '.form-success', '.submitted-message', '[class*="success-message" i]',
+        '.gform_confirmation_message'
+      ];
+      for (const sel of successSelectors) {
+        const el = document.querySelector(sel);
+        if (el && (el as HTMLElement).offsetParent !== null && (el.textContent || '').trim().length > 0) {
+          return true;
+        }
+      }
+      return false;
+    }).catch(() => false);
+
+    if (hasSuccessElement) {
+      console.log(`   ✅ Confirmation verified from success DOM element banner.`);
+      return true;
+    }
+
+    // 4. Main page text
     const mainText = await page.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
     if (isSuccessText(mainText)) return true;
 
+    // 5. Active container text
     if (activeContainer && activeContainer !== page) {
       const containerText = await activeContainer.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
       if (isSuccessText(containerText)) return true;
     }
 
+    // 6. Check all frames
     for (const frame of page.frames()) {
       const fText = await frame.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
       if (isSuccessText(fText)) return true;
+    }
+
+    // 7. Verified Network 2xx POST response with no visible DOM validation errors
+    if (networkConfirmed) {
+      console.log(`   ✅ Confirmed via verified Network 2xx API submission response.`);
+      return true;
     }
 
     return false;
@@ -872,7 +963,7 @@ export class UniversalCareerSolver {
   }
 
   private static async prepareEmailApplication(hrEmail: string, company: string, resumePath: string, atsScore: number = 85): Promise<void> {
-    const dispatchesDir = path.resolve('data/email_dispatches');
+    const dispatchesDir = path.join(ENGINE_ROOT, 'data/email_dispatches');
     fs.mkdirSync(dispatchesDir, { recursive: true });
 
     const safeCompany = (company || 'Company').replace(/[^a-zA-Z0-9]/g, '_').slice(0, 20);

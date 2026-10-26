@@ -579,7 +579,7 @@ export function generateHtml(v: ResumeVariant): string {
 }
 
 export async function compileAllResumes() {
-  const canonicalDir = path.resolve('data/canonical_resumes');
+  const canonicalDir = path.resolve(__dirname, '../data/canonical_resumes');
   const jobSearchResumesDir = path.resolve('../job-search-mcp-engine/resumes');
   const profileRankDir = path.resolve('../profile-rank-engine/resumes');
 
@@ -612,7 +612,7 @@ export async function compileAllResumes() {
 
     // 3. If Frontend Engineer, sync default resume.pdf
     if (variant.key === 'FE') {
-      fs.copyFileSync(canonicalPdf, path.resolve('data/resume.pdf'));
+      fs.copyFileSync(canonicalPdf, path.resolve(__dirname, '../data/resume.pdf'));
       fs.copyFileSync(canonicalPdf, path.resolve('../hirist-auto-apply-engine/data/resume.pdf'));
       fs.copyFileSync(canonicalPdf, path.join(profileRankDir, 'Pratik_Patidar_Resume.pdf'));
       console.log('✅ Synchronized default resume.pdf across engines');

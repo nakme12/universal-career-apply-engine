@@ -274,7 +274,7 @@ export async function buildPdf(outputPath: string) {
 }
 
 async function main() {
-  const targetPath = path.resolve('data/resume.pdf');
+  const targetPath = path.resolve(__dirname, '../data/resume.pdf');
   await buildPdf(targetPath);
 }
 

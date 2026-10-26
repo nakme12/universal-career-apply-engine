@@ -3,7 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { CANONICAL_PROFILE } from './config';
 
-const RESUME_PATH = path.resolve('data/resume.pdf');
+const RESUME_PATH = path.resolve(__dirname, '../data/resume.pdf');
 const PROOFS_DIR = path.resolve('screenshots/live_confirmed_submissions');
 
 interface TestTarget {
