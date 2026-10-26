@@ -276,6 +276,7 @@ export const VARIANTS: ResumeVariant[] = [
           'Developed full-stack modules for client platforms: modular React frontends and Node.js/Express API services.',
           'Designed and implemented 20+ REST API endpoints with Mongoose schema validation, middleware error handling, and JWT authentication.',
           'Built MongoDB aggregation pipelines for data filtering, multi-field search, and reporting dashboards.',
+          'Configured compound database indexes on high-traffic collections and optimized aggregation queries to minimize latency on analytical views.',
           'Built responsive user interfaces in React.js and Next.js from Figma design specifications.',
           'Implemented client-side state management using Redux Toolkit slices and Context API with local caching.',
           'Collaborated in Agile sprint planning, daily standups, and Git merge request reviews.'
@@ -347,8 +348,8 @@ export function generateHtml(v: ResumeVariant): string {
       background: #ffffff;
       color: #1e293b;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      font-size: 9.35pt;
-      line-height: 1.38;
+      font-size: 9.5pt;
+      line-height: 1.44;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -401,15 +402,15 @@ export function generateHtml(v: ResumeVariant): string {
       color: #0f172a;
       border-bottom: 1.4px solid #cbd5e1;
       padding-bottom: 2.5px;
-      margin-top: 9px;
-      margin-bottom: 5px;
+      margin-top: 13.5px;
+      margin-bottom: 6px;
     }
 
     /* SUMMARY */
     .summary-text {
-      font-size: 9.1pt;
+      font-size: 9.2pt;
       color: #334155;
-      line-height: 1.38;
+      line-height: 1.42;
       text-align: justify;
       margin-bottom: 4px;
     }
@@ -418,13 +419,13 @@ export function generateHtml(v: ResumeVariant): string {
     .skills-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 9.0pt;
+      font-size: 9.1pt;
       margin-bottom: 4px;
     }
     .skills-table td {
-      padding: 2.2px 0;
+      padding: 2.4px 0;
       vertical-align: top;
-      line-height: 1.34;
+      line-height: 1.36;
     }
     .skill-cat {
       width: 21%;
@@ -438,19 +439,19 @@ export function generateHtml(v: ResumeVariant): string {
 
     /* EXPERIENCE & PROJECTS */
     .job-block {
-      margin-bottom: 7px;
+      margin-bottom: 11px;
     }
     .job-row-1 {
       display: flex;
       justify-content: space-between;
-      font-size: 9.5pt;
+      font-size: 9.6pt;
       font-weight: 700;
       color: #0f172a;
     }
     .job-row-2 {
       display: flex;
       justify-content: space-between;
-      font-size: 9.0pt;
+      font-size: 9.1pt;
       color: #475569;
       margin-bottom: 2.5px;
     }
@@ -459,7 +460,7 @@ export function generateHtml(v: ResumeVariant): string {
       font-weight: 600;
     }
     .project-subtitle {
-      font-size: 8.6pt;
+      font-size: 8.7pt;
       font-style: italic;
       color: #475569;
     }
@@ -470,10 +471,10 @@ export function generateHtml(v: ResumeVariant): string {
       margin-bottom: 2px;
     }
     ul.bullet-list li {
-      font-size: 8.9pt;
+      font-size: 9.0pt;
       color: #334155;
-      line-height: 1.34;
-      margin-bottom: 2.6px;
+      line-height: 1.36;
+      margin-bottom: 4.8px;
     }
 
     /* EDUCATION */
@@ -483,14 +484,14 @@ export function generateHtml(v: ResumeVariant): string {
     .edu-row-1 {
       display: flex;
       justify-content: space-between;
-      font-size: 9.3pt;
+      font-size: 9.4pt;
       font-weight: 700;
       color: #0f172a;
     }
     .edu-row-2 {
       display: flex;
       justify-content: space-between;
-      font-size: 8.9pt;
+      font-size: 9.0pt;
       color: #475569;
     }
   </style>
