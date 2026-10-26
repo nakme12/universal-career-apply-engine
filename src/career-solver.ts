@@ -749,6 +749,16 @@ export class UniversalCareerSolver {
   private static async checkConfirmation(page: Page, activeContainer?: Page | Frame): Promise<boolean> {
     const isSuccessText = (text: string) => {
       const lower = (text || '').toLowerCase();
+
+      // Guard: If page contains error banners or in-flight state, reject immediately
+      if (lower.includes('there was a problem') || 
+          lower.includes('please review the fields') || 
+          lower.includes('this field is required') || 
+          lower.includes('submitting..') || 
+          lower.includes('submitting...')) {
+        return false;
+      }
+
       return (
         lower.includes('thank you') ||
         lower.includes('application submitted') ||
