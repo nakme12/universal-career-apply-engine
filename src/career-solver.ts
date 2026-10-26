@@ -241,6 +241,27 @@ export class UniversalCareerSolver {
         };
       }
 
+      // Step 5.9: Image CAPTCHA Detection Guard (Zoho, Keka, etc.)
+      const hasImageCaptcha = await activeContainer.evaluate(() => {
+        const cap = document.querySelector('img#imgCaptcha, img[src*="captcha" i], input[placeholder*="image text" i], input#captcha');
+        return !!(cap && (cap as HTMLElement).offsetParent !== null);
+      }).catch(() => false);
+
+      if (hasImageCaptcha) {
+        console.log('   🛡️ Image CAPTCHA detected on form. Safely recording for human assistance.');
+        return {
+          success: false,
+          reason: 'Image CAPTCHA wall requires manual human entry',
+          url: targetUrl,
+          domain,
+          fieldsFilled: fillCount,
+          resumeAttached,
+          tailoredResumeUsed: optResult.tailored,
+          atsScore: optResult.finalScore,
+          screenshotPath: undefined
+        };
+      }
+
       // Step 6: Find Submit Button
       const submitSelectors = [
         'button[type="submit"]',
@@ -427,8 +448,18 @@ export class UniversalCareerSolver {
     return container.evaluate(() => {
       const inputs = Array.from(document.querySelectorAll('input:not([type="hidden"]), textarea, select'));
       const isVisible = (el: Element) => (el as HTMLElement).offsetParent !== null;
-      const hasName = inputs.some(el => isVisible(el) && /name|first|last|fname|lname/i.test((el as any).name + (el as any).id + (el as any).placeholder));
-      const hasEmail = inputs.some(el => isVisible(el) && (/email/i.test((el as any).name + (el as any).id + (el as any).placeholder) || (el as any).type === 'email'));
+      const hasName = inputs.some(el => {
+        if (!isVisible(el)) return false;
+        const attr = ((el as any).name + (el as any).id + (el as any).placeholder).toLowerCase();
+        const lbl = el.closest('.form-group, lyte-form-field, .rec-form-group, .cw-form-field, div')?.querySelector('label, lyte-label')?.textContent?.toLowerCase() || '';
+        return /name|first|last|fname|lname/i.test(attr) || /name|first|last/i.test(lbl);
+      });
+      const hasEmail = inputs.some(el => {
+        if (!isVisible(el)) return false;
+        const attr = ((el as any).name + (el as any).id + (el as any).placeholder).toLowerCase();
+        const lbl = el.closest('.form-group, lyte-form-field, .rec-form-group, .cw-form-field, div')?.querySelector('label, lyte-label')?.textContent?.toLowerCase() || '';
+        return /email/i.test(attr) || (el as any).type === 'email' || /email/i.test(lbl);
+      });
       const hasResume = inputs.some(el => (el as any).type === 'file');
       return (hasName && hasEmail) || (hasEmail && hasResume);
     }).catch(() => false);
