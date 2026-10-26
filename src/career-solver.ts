@@ -238,14 +238,25 @@ export class UniversalCareerSolver {
         await submitBtn.click().catch(() => null);
         await page.waitForTimeout(6000);
 
-        // Check for visible validation errors on DOM
+        // Check for visible validation errors and error banners on DOM (Gravity Forms, WordPress, Bootstrap, custom)
         const validationError = await activeContainer.evaluate(() => {
-          const errs = Array.from(document.querySelectorAll('.error, .is-invalid, .invalid-feedback, .wpcf7-not-valid-tip, [aria-invalid="true"]'));
-          const visible = errs.find(el => (el as any).offsetParent !== null && (el.textContent || '').trim().length > 0);
-          return visible ? visible.textContent?.trim() : null;
+          const errEls = Array.from(document.querySelectorAll('.gform_validation_errors, .validation_error, .field_error, .text-danger, .alert-danger, .form-error, .error, .is-invalid, .invalid-feedback, .wpcf7-not-valid-tip, [aria-invalid="true"]'));
+          const visible = errEls.find(el => (el as any).offsetParent !== null && (el.textContent || '').trim().length > 0);
+          if (visible) return visible.textContent?.trim() || 'Form validation error';
+
+          const text = (document.body.innerText || '').toLowerCase();
+          if (text.includes('there was a problem with your submission') ||
+              text.includes('please review the fields') ||
+              text.includes('this field is required') ||
+              text.includes('you forgot your') ||
+              text.includes('please fix the errors') ||
+              text.includes('captcha verification failed')) {
+            return 'Form returned submission error banner on page';
+          }
+          return null;
         }).catch(() => null);
 
-        // STRICT Dual Confirmation Assertion: DOM banner OR verified HTTP 2xx POST response
+        // STRICT DOM Confirmation Assertion: Positive confirmation banner is MANDATORY
         const domConfirmed = await this.checkConfirmation(page, activeContainer);
         await page.screenshot({ path: screenshotPath }).catch(() => null);
 
@@ -264,11 +275,12 @@ export class UniversalCareerSolver {
           };
         }
 
-        if (!domConfirmed && !networkSubmissionConfirmed) {
-          console.log(`   ❌ Submission NOT verified (no DOM success banner and no 2xx network response). Rejecting false positive.`);
+        // DOM CONFIRMATION IS STRICTLY MANDATORY (Network 2xx alone can be a PHP page re-render with errors)
+        if (!domConfirmed) {
+          console.log(`   ❌ Submission NOT verified on DOM (no positive confirmation banner found). Rejecting false positive.`);
           return {
             success: false,
-            reason: `Submit clicked but unconfirmed (DOM unverified, network status: ${networkSubmissionError || 'none'})`,
+            reason: `Submit clicked but no DOM confirmation received (unverified response)`,
             url: targetUrl,
             domain,
             fieldsFilled: fillCount,
@@ -279,10 +291,10 @@ export class UniversalCareerSolver {
           };
         }
 
-        console.log(`   ✅ Confirmed application submitted! (${domConfirmed ? 'DOM banner verified' : 'Network 2xx POST verified'})`);
+        console.log(`   ✅ Confirmed application submitted! (DOM banner verified)`);
         return {
           success: true,
-          reason: domConfirmed ? 'Confirmed application submitted on DOM (verified confirmation banner)' : 'Confirmed application submitted via verified HTTP 2xx POST',
+          reason: 'Confirmed application submitted on DOM (verified confirmation banner)',
           url: targetUrl,
           domain,
           fieldsFilled: fillCount,
@@ -487,12 +499,18 @@ export class UniversalCareerSolver {
       filled++;
     }
 
-    // B. Full Name
+    // B. Full Name (Selector + getByLabel for Gravity Forms/Hubspot)
     if (filled === 0) {
       const fullName = container.locator('input[name*="name" i]:not([name*="first" i]):not([name*="last" i]):not([name*="fname" i]):not([name*="lname" i]), input[id*="name" i]:not([id*="first" i]):not([id*="last" i]):not([id*="fname" i]):not([id*="lname" i]), input[placeholder*="full name" i], input[placeholder*="your name" i], input[autocomplete="name"]');
       if ((await fullName.count()) > 0 && (await fullName.first().isVisible().catch(() => false))) {
         await fullName.first().fill(candidate.fullName).catch(() => null);
         filled++;
+      } else {
+        const nameLabel = container.getByLabel(/^name/i).first();
+        if ((await nameLabel.count()) > 0 && (await nameLabel.isVisible().catch(() => false))) {
+          await nameLabel.fill(candidate.fullName).catch(() => null);
+          filled++;
+        }
       }
     }
 
@@ -503,11 +521,17 @@ export class UniversalCareerSolver {
       filled++;
     }
 
-    // D. Phone / Mobile / Contact
+    // D. Phone / Mobile / Contact (Selector + getByLabel)
     const phone = container.locator('input[type="tel"], input[name*="phone" i], input[name*="mobile" i], input[name*="cno" i], input[name*="contact" i], input[id*="phone" i], input[id*="mobile" i], input[id*="cno" i], input[id*="contact" i], input[placeholder*="phone" i], input[placeholder*="mobile" i], input[placeholder*="contact" i], input[autocomplete="tel"]');
     if ((await phone.count()) > 0 && (await phone.first().isVisible().catch(() => false))) {
       await phone.first().fill(candidate.phone).catch(() => null);
       filled++;
+    } else {
+      const phoneLabel = container.getByLabel(/phone/i).first();
+      if ((await phoneLabel.count()) > 0 && (await phoneLabel.isVisible().catch(() => false))) {
+        await phoneLabel.fill(candidate.phone).catch(() => null);
+        filled++;
+      }
     }
 
     // E. Current Company
@@ -573,11 +597,17 @@ export class UniversalCareerSolver {
       filled++;
     }
 
-    // N. Location / City
+    // N. Location / City / Hometown (Selector + getByLabel)
     const city = container.locator('input[name*="city" i], input[id*="city" i], input[name*="location" i], input[id*="location" i], input[placeholder*="city" i], input[placeholder*="location" i], input[name*="address" i]');
     if ((await city.count()) > 0 && (await city.first().isVisible().catch(() => false))) {
       await city.first().fill(candidate.currentLocation).catch(() => null);
       filled++;
+    } else {
+      const htLabel = container.getByLabel(/hometown|city|location/i).first();
+      if ((await htLabel.count()) > 0 && (await htLabel.isVisible().catch(() => false))) {
+        await htLabel.fill("Indore").catch(() => null);
+        filled++;
+      }
     }
 
     // O. College / Education
@@ -609,8 +639,28 @@ export class UniversalCareerSolver {
       }
     } catch {}
 
-    // Q. Common Dropdown Selects (<select>)
+    // Q. Common Dropdown Selects (<select>) & Role / Location dropdowns
     try {
+      // Role / Position selector
+      const roleSel = container.getByLabel(/applying for|position|role|job title/i).first();
+      if ((await roleSel.count()) > 0 && (await roleSel.isVisible().catch(() => false))) {
+        await roleSel.selectOption({ label: 'Software Engineer - REACT.JS' }).catch(() => {
+          roleSel.selectOption({ label: 'Front-End Engineer' }).catch(() => {
+            roleSel.selectOption({ index: 2 }).catch(() => null);
+          });
+        });
+        filled++;
+      }
+
+      // Preferred location selector
+      const locSel = container.getByLabel(/preferred location/i).first();
+      if ((await locSel.count()) > 0 && (await locSel.isVisible().catch(() => false))) {
+        await locSel.selectOption({ label: 'Any Location' }).catch(() => {
+          locSel.selectOption({ index: 1 }).catch(() => null);
+        });
+        filled++;
+      }
+
       const selects = container.locator('select');
       const selCount = await selects.count();
       for (let i = 0; i < selCount; i++) {
