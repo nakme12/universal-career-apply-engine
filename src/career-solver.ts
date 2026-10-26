@@ -610,12 +610,56 @@ export class UniversalCareerSolver {
       }
     }
 
-    // O. College / Education
-    const edu = container.locator('input[name*="college" i], input[id*="college" i], input[name*="university" i], input[id*="university" i], input[placeholder*="college" i], input[placeholder*="university" i], input[placeholder*="school" i]');
+    // O. College / Education & Degree (e.g. Relinns mat-input-4 degree)
+    const edu = container.locator('input[name*="college" i], input[id*="college" i], input[name*="university" i], input[id*="university" i], input[placeholder*="college" i], input[placeholder*="university" i], input[placeholder*="school" i], input[placeholder*="degree" i], input[name*="degree" i]');
     if ((await edu.count()) > 0 && (await edu.first().isVisible().catch(() => false))) {
-      await edu.first().fill(candidate.education.college).catch(() => null);
+      await edu.first().fill('BTech Computer Science').catch(() => null);
       filled++;
     }
+
+    // O.1 Skills Input (e.g. Appic Softwares your-skill)
+    const skills = container.locator('input[name*="skill" i], input[id*="skill" i], input[placeholder*="skill" i]');
+    if ((await skills.count()) > 0 && (await skills.first().isVisible().catch(() => false))) {
+      await skills.first().fill('React.js, Next.js, TypeScript, Tailwind CSS, Redux, REST APIs').catch(() => null);
+      filled++;
+      console.log('   💻 Filled Skills field');
+    }
+
+    // O.2 Address Textarea / Location Input (e.g. Thex Techvent textarea[name="address"])
+    const addr = container.locator('textarea[name*="address" i], textarea[placeholder*="address" i], input[name*="address" i], input[placeholder*="current location" i]');
+    if ((await addr.count()) > 0 && (await addr.first().isVisible().catch(() => false))) {
+      await addr.first().fill('Indore, Madhya Pradesh, India').catch(() => null);
+      filled++;
+      console.log('   📍 Filled Address/Location field');
+    }
+
+    // O.3 Math Captcha Solver (e.g. Thex Techvent "3 + 1 =")
+    try {
+      const captchaContainers = container.locator('.submit__generated, [class*="captcha" i], label:has-text("+"), label:has-text("-")');
+      const cCount = await captchaContainers.count();
+      for (let j = 0; j < cCount; j++) {
+        const cEl = captchaContainers.nth(j);
+        if (await cEl.isVisible().catch(() => false)) {
+          const text = await cEl.innerText().catch(() => '');
+          const match = text.match(/(\d+)\s*([\+\-\*])\s*(\d+)/);
+          if (match) {
+            const num1 = parseInt(match[1], 10);
+            const op = match[2];
+            const num2 = parseInt(match[3], 10);
+            let ans = 0;
+            if (op === '+') ans = num1 + num2;
+            else if (op === '-') ans = num1 - num2;
+            else if (op === '*') ans = num1 * num2;
+            const input = cEl.locator('input').first();
+            if ((await input.count()) > 0) {
+              await input.fill(ans.toString()).catch(() => null);
+              console.log(`   🔢 Solved Math Captcha: ${num1} ${op} ${num2} = ${ans}`);
+              filled++;
+            }
+          }
+        }
+      }
+    } catch {}
 
     // P. Textareas / Custom Questions / Cover Letter / Why Hire You
     try {
@@ -633,8 +677,8 @@ export class UniversalCareerSolver {
               await ta.fill('Frontend / Full Stack Developer with 1.5+ years of production experience in React.js, Next.js, and TypeScript. Proven track record of reducing bundle sizes by 40%, building scalable UI components, and integrating RESTful APIs. Excited to contribute to engineering goals at this position.').catch(() => null);
               filled++;
               console.log(`   📝 Auto-filled custom question/textarea #${i + 1}`);
-            }
           }
+            }
         }
       }
     } catch {}
@@ -725,6 +769,16 @@ export class UniversalCareerSolver {
       if ((await fileInput.count()) > 0) {
         await fileInput.setInputFiles(resumePath).catch(() => null);
         console.log(`   📎 Resume attached: ${path.basename(resumePath)}`);
+
+        // If page has a separate "Upload" button to commit the attached file (e.g. Thex Techvent)
+        try {
+          const innerUpload = container.locator('button:has-text("Upload"), input[value*="Upload" i], .drop_box button').first();
+          if (await innerUpload.isVisible().catch(() => false)) {
+            await innerUpload.click().catch(() => null);
+            console.log('   ⬆️ Clicked secondary resume upload button');
+          }
+        } catch {}
+
         return true;
       }
     } catch (e: any) {

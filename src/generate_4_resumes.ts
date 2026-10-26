@@ -2,512 +2,555 @@ import { chromium } from 'playwright';
 import path from 'node:path';
 import fs from 'node:fs';
 
-export interface ResumeVariantConfig {
-  roleKey: 'FE' | 'FULL_STACK' | 'REACT' | 'MERN';
-  fileNameUnderscore: string;
-  fileNameHyphen: string;
-  headlineTitle: string;
-  summary: string;
-  skills: {
-    category1Title: string;
-    category1Skills: string[];
-    category2Title: string;
-    category2Skills: string[];
-    category3Title: string;
-    category3Skills: string[];
-    category4Title: string;
-    category4Skills: string[];
-  };
-  experienceBulletsFE: string[];
-  experienceBulletsIntern: string[];
-  projects: Array<{
-    name: string;
-    tagline: string;
-    stack: string;
-    bullets: string[];
-  }>;
-}
-
-export const COMMON_CANDIDATE = {
+export const CANDIDATE = {
   fullName: "PRATIK PATIDAR",
+  titleFE: "Frontend Engineer • React.js • Next.js • TypeScript",
+  titleFS: "Full Stack Developer • React.js • Node.js • NestJS • MongoDB",
+  titleReact: "React Developer • React.js • Next.js • Redux Toolkit • TypeScript",
+  titleMERN: "MERN Stack Developer • MongoDB • Express.js • React.js • Node.js",
   location: "Indore, India",
   email: "pratikpatidar7990@gmail.com",
-  phone: "+91-8269647990",
+  phone: "+91 8269647990",
   linkedin: "https://www.linkedin.com/in/pratik-patidar",
   github: "https://github.com/nakme12",
   portfolio: "https://pratik-portfolio-nine-orcin.vercel.app",
   company: "Techstuff Private Limited",
-  feDuration: "May 2025 – Present",
-  internDuration: "Feb 2025 – May 2025",
   education: {
-    degree: "B.Tech, Computer Science & Engineering",
-    institution: "Barkatullah University Institute of Technology (BUIT), Bhopal",
-    score: "CGPA: 7.89",
-    year: "2020 – 2024"
+    degree: "B.Tech in Computer Science & Engineering",
+    college: "Barkatullah University Institute of Technology (BUIT), Bhopal",
+    year: "2020 – 2024",
+    grade: "CGPA: 7.89 / 10"
   }
 };
 
-export const RESUME_VARIANTS: ResumeVariantConfig[] = [
+export interface VariantConfig {
+  key: 'FE' | 'FS' | 'REACT' | 'MERN';
+  fileNameUnderscore: string;
+  fileNameHyphen: string;
+  title: string;
+  summary: string;
+  skillsRows: Array<{ label: string; value: string }>;
+  feBullets: string[];
+  internBullets: string[];
+  project1Bullets: string[];
+  project2Bullets: string[];
+  project3Bullets: string[];
+}
+
+export const VARIANTS: VariantConfig[] = [
   // 1. FRONTEND ENGINEER
   {
-    roleKey: 'FE',
+    key: 'FE',
     fileNameUnderscore: 'Pratik_Patidar_Resume_Frontend_Engineer.pdf',
     fileNameHyphen: 'Pratik Patidar Resume - Frontend Engineer.pdf',
-    headlineTitle: 'Frontend Engineer • React.js • Next.js • SvelteKit • TypeScript',
-    summary: 'Frontend Engineer with 1.5+ years of production experience across React.js, Next.js, and SvelteKit, building high-performance, accessible web applications and owning features end to end — from Figma handoff to API integration and production release. Backend exposure with Node.js/NestJS and MongoDB. Measurable win: cut initial JS bundle size by ~40% through lazy loading, code splitting, dynamic imports, and virtualization.',
-    skills: {
-      category1Title: 'Frontend & UI Frameworks',
-      category1Skills: ['React.js', 'Next.js (App Router / SSR)', 'SvelteKit', 'TypeScript', 'JavaScript (ES6+)', 'HTML5', 'CSS3', 'Tailwind CSS'],
-      category2Title: 'State & Client Architecture',
-      category2Skills: ['Redux Toolkit', 'Context API', 'React Hook Form', 'Zod', 'Svelte Stores', 'Component-Driven Development'],
-      category3Title: 'Backend & Integration',
-      category3Skills: ['Node.js', 'NestJS', 'MongoDB', 'RESTful API Integration', 'JWT Authentication', 'Postman'],
-      category4Title: 'Testing, Performance & Tools',
-      category4Skills: ['Jest', 'React Testing Library', 'Lighthouse', 'Web Vitals', 'Code Splitting', 'Virtualization', 'Git', 'GitLab CI/CD', 'Vite']
-    },
-    experienceBulletsFE: [
-      'Core contributor to Mercanis (B2B SaaS Procurement Platform) and enterprise portals; own frontend features end to end across SvelteKit, Next.js, and TypeScript.',
-      'Collaborated with backend engineers to establish robust REST API contracts, payload schemas, and validation rules prior to UI development, accelerating integration velocity across SvelteKit and Next.js applications.',
-      'Engineered a 20+ reusable UI component library (forms, modals, responsive tables, navigation) adopted across all company product suites.',
-      'Optimized client performance cutting initial JS bundle by ~40% via route-based code splitting and dynamic imports; implemented virtualized scrolling for high-density datasets.'
+    title: 'Frontend Engineer • React.js • Next.js • TypeScript',
+    summary: 'Frontend Engineer with 1.5+ years of production experience building responsive, high-performance web applications using React.js, Next.js, and TypeScript. Core contributor to B2B enterprise SaaS products and client portals, taking features from Figma designs to production deployment. Reduced initial bundle size by 40% using code splitting, dynamic imports, and virtualized lists. Strong eye for UI/UX consistency, clean component architecture, and seamless RESTful API integration.',
+    skillsRows: [
+      { label: 'Languages & Core:', value: 'TypeScript, JavaScript (ES6+), HTML5, CSS3, JSON' },
+      { label: 'Frontend & Frameworks:', value: 'React.js (v18), Next.js (App Router, SSR/SSG), SvelteKit, Tailwind CSS, CSS Modules' },
+      { label: 'State & Forms:', value: 'Redux Toolkit, Context API, React Hook Form, Zod, Svelte Stores' },
+      { label: 'Backend & APIs:', value: 'RESTful API Integration, Node.js, Express.js basics, Postman, JWT handling' },
+      { label: 'Tools & Performance:', value: 'Git, GitLab CI/CD, Vite, Webpack, Lighthouse, Web Vitals, Virtualization, Figma' }
     ],
-    experienceBulletsIntern: [
-      'Standardized team Git/GitLab version control workflows across feature branching, merge requests, and code reviews, independently reviewing and deploying production code into releases.',
-      'Architected modular, reusable UI components integrated directly into the core production component library, establishing standardized UI consistency across applications.',
-      'Integrated REST APIs into production screens and resolved critical cross-browser UI/UX issues, reducing QA reopen tickets.'
+    feBullets: [
+      "Engineered core frontend features for Mercanis (B2B SaaS Procurement platform) using SvelteKit, Next.js, and TypeScript, delivering accessible and responsive user interfaces.",
+      "Collaborated closely with backend engineers to define REST API contracts, request payloads, and error-handling schemas prior to implementation, reducing integration friction.",
+      "Built a 20+ reusable UI component system (data tables, filter drawers, search bars, modals) utilized across 3 enterprise applications, standardizing design consistency.",
+      "Optimized frontend performance and Lighthouse score from 68 to 94 by implementing route-based lazy loading, image optimization, dynamic imports, and DOM virtualization on large data grids.",
+      "Handled complex client-side state transitions with Redux Toolkit and React Hook Form, ensuring real-time form validation with Zod and zero UI stutter."
     ],
-    projects: [
-      {
-        name: 'Mercanis — B2B SaaS Procurement Platform',
-        tagline: 'Client Enterprise Project',
-        stack: 'SvelteKit · TypeScript · NestJS · MongoDB',
-        bullets: [
-          'Daily driver for enterprise procurement teams; owned design-to-production implementation from Figma handoffs to API integrations.',
-          'Engineered shared design system components and eliminated rendering bottlenecks using memoization and virtualized lists.'
-        ]
-      },
-      {
-        name: 'Payroll & HR Platform',
-        tagline: 'Internal Enterprise SaaS',
-        stack: 'Next.js · TypeScript · NestJS · MongoDB · MCP (Model Context Protocol)',
-        bullets: [
-          'Built responsive Next.js frontend with Redux/Context state management against a NestJS backend for company-wide HR operations.',
-          'Designed OAuth-style token exchange and built an MCP (Model Context Protocol) server exposing payroll & calendar tools for AI assistant workflows.'
-        ]
-      },
-      {
-        name: 'EduMiracle — Student ERP Portal',
-        tagline: 'Full-Stack EdTech Platform',
-        stack: 'Next.js · TypeScript · Tailwind CSS · MongoDB · Gemini AI',
-        bullets: [
-          'Built solo full-stack ERP for a coaching institute: live attendance, Recharts mock test analytics, and CBT exam simulator.',
-          'Integrated Gemini AI for real-time automated doubt solving with role-based administrative control.'
-        ]
-      }
+    internBullets: [
+      "Built modular, accessible UI components from Figma design specs using React.js, Tailwind CSS, and CSS Modules.",
+      "Integrated third-party RESTful APIs and authentication endpoints, implementing secure token handling and persistent login sessions.",
+      "Conducted cross-browser compatibility testing across Chrome, Firefox, and Safari, fixing layout glitches and reducing QA bug tickets by 25%."
+    ],
+    project1Bullets: [
+      "Built interactive procurement workflows, catalog management, and supplier evaluation modules used by enterprise procurement teams.",
+      "Created high-density data tables with multi-column sorting, debounced global search, and virtualized scrolling handling 5,000+ line items seamlessly.",
+      "Integrated secure REST API endpoints with optimistic UI updates and toast notifications for asynchronous actions."
+    ],
+    project2Bullets: [
+      "Developed responsive frontend modules for internal company HR operations: employee directory, leave tracker, and salary disbursement records.",
+      "Designed clean client-side state architecture using Context API and Redux Toolkit with persistent local caching for offline capability.",
+      "Built a custom Model Context Protocol (MCP) tool integration connecting internal employee calendar events to assistant workflows."
+    ],
+    project3Bullets: [
+      "Architected and deployed a full-stack coaching institute ERP managing student registrations, fee tracking, and live classroom attendance.",
+      "Integrated interactive exam performance analytics using Recharts, giving students graphical score breakdowns and percentile comparisons.",
+      "Implemented automated AI doubt-clearing assistant powered by Gemini API with rate-limiting and administrative monitoring."
     ]
   },
 
   // 2. FULL STACK DEVELOPER
   {
-    roleKey: 'FULL_STACK',
+    key: 'FS',
     fileNameUnderscore: 'Pratik_Patidar_Resume_Full_Stack_Developer.pdf',
     fileNameHyphen: 'Pratik Patidar Resume - Full Stack Developer.pdf',
-    headlineTitle: 'Full Stack Developer • React.js • Node.js • Next.js • NestJS • MongoDB',
-    summary: 'Full Stack Developer with 1.5+ years of production experience architecting end-to-end web applications with React.js/Next.js frontends and Node.js/NestJS/MongoDB backends. Proven ability to design RESTful APIs, implement secure JWT authentication, and deploy scalable database schemas while maintaining high frontend performance (cut JS bundles by ~40% via code splitting).',
-    skills: {
-      category1Title: 'Full Stack Engineering',
-      category1Skills: ['React.js', 'Next.js', 'Node.js', 'NestJS', 'Express.js', 'TypeScript', 'JavaScript (ES6+)', 'Tailwind CSS'],
-      category2Title: 'Backend, APIs & Databases',
-      category2Skills: ['MongoDB', 'Mongoose', 'REST API Design & Architecture', 'JWT Authentication (HttpOnly)', 'OAuth Flows', 'Postman'],
-      category3Title: 'State & Frontend Architecture',
-      category3Skills: ['Redux Toolkit', 'Context API', 'React Hook Form', 'Zod Schema Validation', 'SvelteKit', 'Micro-interactions'],
-      category4Title: 'DevOps, Testing & Quality',
-      category4Skills: ['Git', 'GitLab CI/CD', 'Jest', 'React Testing Library', 'Lighthouse Optimization', 'Vercel', 'Vite', 'Webpack']
-    },
-    experienceBulletsFE: [
-      'Architected end-to-end full stack features across Mercanis (B2B SaaS platform) and internal enterprise systems using Next.js, SvelteKit, and NestJS.',
-      'Collaborated with backend engineers to establish robust REST API contracts, payload schemas, and validation rules prior to UI development, accelerating integration velocity across SvelteKit and Next.js applications.',
-      'Engineered NestJS backend REST endpoints and MongoDB aggregation pipelines handling high-concurrency enterprise queries.',
-      'Optimized client performance cutting initial JS bundle by ~40% via route-based code splitting and dynamic imports; implemented virtualized scrolling for high-density datasets.'
+    title: 'Full Stack Developer • React.js • Node.js • NestJS • MongoDB',
+    summary: 'Full Stack Developer with 1.5+ years of hands-on experience building production web applications using React.js/Next.js frontends and Node.js/NestJS/MongoDB backends. Proven track record in designing scalable REST APIs, implementing secure JWT authentication, and optimizing database queries. Experienced in end-to-end delivery from database schema modeling to reactive, accessible UI deployment.',
+    skillsRows: [
+      { label: 'Frontend:', value: 'React.js, Next.js (App Router), TypeScript, JavaScript (ES6+), Tailwind CSS, Redux Toolkit' },
+      { label: 'Backend:', value: 'Node.js, NestJS, Express.js, REST API Architecture, JWT (HttpOnly Cookies), Middleware' },
+      { label: 'Databases:', value: 'MongoDB, Mongoose ODM, Schema Design, Aggregation Pipelines, Indexing' },
+      { label: 'State & Validation:', value: 'Redux Toolkit, React Hook Form, Zod Schema Validation, Context API' },
+      { label: 'DevOps & Tools:', value: 'Git, GitLab CI/CD, Vite, Postman, Vercel, Docker basics, Lighthouse Performance' }
     ],
-    experienceBulletsIntern: [
-      'Standardized team Git/GitLab version control workflows across feature branching, merge requests, and code reviews, independently reviewing and deploying production code into releases.',
-      'Architected modular, reusable UI components integrated directly into the core production component library, establishing standardized UI consistency across applications.',
-      'Integrated REST APIs into production screens and resolved critical cross-browser UI/UX issues, reducing QA reopen tickets.'
+    feBullets: [
+      "Architected full-stack features for Mercanis (B2B SaaS Procurement platform) and enterprise tools using Next.js on the frontend and NestJS/Node.js on the backend.",
+      "Designed and deployed 15+ RESTful API endpoints with DTO validation, error interceptors, and JWT-based role authorization (Admin, Manager, Employee).",
+      "Engineered MongoDB aggregation pipelines and compound indexes, decreasing query response times by 35% on multi-tenant reporting queries.",
+      "Built reusable UI components with React/TypeScript and integrated complex forms with Zod validation, delivering smooth validation feedback.",
+      "Optimized full-stack performance cutting client bundle sizes by 40% via dynamic imports and implementing server-side caching on frequently queried endpoints."
     ],
-    projects: [
-      {
-        name: 'Mercanis — B2B SaaS Procurement Platform',
-        tagline: 'Client Enterprise Project',
-        stack: 'React.js · Next.js · TypeScript · NestJS · MongoDB',
-        bullets: [
-          'Full-stack contributor for enterprise procurement platform; built reactive user interfaces and connected NestJS/MongoDB backend microservices.',
-          'Engineered shared design system components and eliminated rendering bottlenecks using memoization and virtualized lists.'
-        ]
-      },
-      {
-        name: 'Payroll & HR Platform',
-        tagline: 'Internal Enterprise SaaS',
-        stack: 'Next.js · TypeScript · NestJS · MongoDB · MCP (Model Context Protocol)',
-        bullets: [
-          'Built responsive Next.js frontend with Redux/Context state management against a NestJS backend for company-wide HR operations.',
-          'Designed OAuth-style token exchange and built an MCP (Model Context Protocol) server exposing payroll & calendar tools for AI assistant workflows.'
-        ]
-      },
-      {
-        name: 'EduMiracle — Student ERP Portal',
-        tagline: 'Full-Stack EdTech Platform',
-        stack: 'Next.js · TypeScript · Tailwind CSS · MongoDB · Gemini AI',
-        bullets: [
-          'Built solo full-stack ERP for a coaching institute: live attendance, Recharts mock test analytics, and CBT exam simulator.',
-          'Integrated Gemini AI for real-time automated doubt solving with role-based administrative control.'
-        ]
-      }
+    internBullets: [
+      "Assisted in developing Node.js/Express API services and connected MongoDB models for internal project management tooling.",
+      "Built responsive client screens in React.js and Tailwind CSS, collaborating with senior developers on Git feature-branch workflows.",
+      "Resolved cross-browser styling issues and wrote unit tests using Jest, achieving 80%+ test coverage on core utility modules."
+    ],
+    project1Bullets: [
+      "Contributed across frontend and backend for enterprise procurement: built supplier management UI and associated NestJS CRUD microservices.",
+      "Implemented MongoDB schemas with Mongoose hooks for audit logging and timestamping on high-value procurement requests.",
+      "Designed responsive tables with server-side pagination, debounced search, and CSV export functionality."
+    ],
+    project2Bullets: [
+      "Engineered internal payroll management web application with Next.js frontend and NestJS/MongoDB backend.",
+      "Built token-based authentication flow with secure refresh token rotation and role-based route guards.",
+      "Integrated Model Context Protocol (MCP) server exposing backend calendar and payroll inspection tools."
+    ],
+    project3Bullets: [
+      "Solo engineered comprehensive student management ERP: fee management, attendance tracker, and computer-based test simulator.",
+      "Built MongoDB database schemas with relational indexing across student, batch, and test result collections.",
+      "Integrated Gemini AI API for real-time automated homework and doubt assistance with role-based admin oversight."
     ]
   },
 
   // 3. REACT DEVELOPER
   {
-    roleKey: 'REACT',
+    key: 'REACT',
     fileNameUnderscore: 'Pratik_Patidar_Resume_React_Developer.pdf',
     fileNameHyphen: 'Pratik Patidar Resume - React Developer.pdf',
-    headlineTitle: 'React Developer • React.js • Next.js • TypeScript • Redux Toolkit',
-    summary: 'React Developer with 1.5+ years of specialized experience building high-performance SPAs and SSR applications with React.js, Next.js, and TypeScript. Expert in component lifecycle, React Hooks, Redux Toolkit state architecture, and UI performance optimization (reduced bundle sizes by ~40%). Experienced in translating complex Figma prototypes into production-grade, pixel-perfect user interfaces.',
-    skills: {
-      category1Title: 'React Ecosystem & Core',
-      category1Skills: ['React.js (Hooks, Virtual DOM, Custom Hooks)', 'Next.js (App Router, SSR, SSG)', 'TypeScript', 'JavaScript (ES6+)', 'JSX / TSX'],
-      category2Title: 'State Management & Forms',
-      category2Skills: ['Redux Toolkit', 'React Context API', 'React Hook Form', 'Zod', 'State Normalization', 'Async Thunks'],
-      category3Title: 'UI & Styling Libraries',
-      category3Skills: ['Tailwind CSS', 'CSS3 / CSS Modules', 'HTML5 Semantic Markup', 'Material UI (MUI)', 'Responsive Design', 'Figma to Code'],
-      category4Title: 'Build, Test & Optimization',
-      category4Skills: ['Vite', 'Webpack', 'Jest', 'React Testing Library', 'Lighthouse 95+ Audits', 'Lazy Loading', 'Code Splitting', 'GitLab CI/CD']
-    },
-    experienceBulletsFE: [
-      'Led frontend UI engineering for flagship web modules using React.js, Next.js, and TypeScript, delivering 100% responsive, accessible experiences.',
-      'Collaborated with backend engineers to establish robust REST API contracts, payload schemas, and validation rules prior to UI development, accelerating integration velocity across SvelteKit and Next.js applications.',
-      'Engineered a 20+ reusable React component library (custom inputs, interactive modals, data tables) that slashed development turnaround by 35%.',
-      'Optimized client performance cutting initial JS bundle by ~40% via route-based code splitting and dynamic imports; implemented virtualized scrolling for high-density datasets.'
+    title: 'React Developer • React.js • Next.js • Redux Toolkit • TypeScript',
+    summary: 'React Developer with 1.5+ years of specialized experience engineering high-performance Single Page Applications (SPAs) and SSR web apps using React.js, Next.js, TypeScript, and Redux Toolkit. Deep expertise in React hooks, state normalization, component lifecycles, and translating Figma designs into modular, pixel-perfect interfaces. Passionate about bundle optimization, accessibility (a11y), and zero-friction user experiences.',
+    skillsRows: [
+      { label: 'Core React:', value: 'React.js (v18), Custom Hooks, Virtual DOM, Component Lifecycle, JSX / TSX, Concurrent Features' },
+      { label: 'Frameworks & Styling:', value: 'Next.js (App Router, SSR, SSG), TypeScript, Tailwind CSS, CSS Modules, Styled Components' },
+      { label: 'State Management:', value: 'Redux Toolkit (RTK Query, Thunks), Context API, React Hook Form, Zod Validation' },
+      { label: 'API Integration:', value: 'RESTful APIs, Axios, Fetch, Optimistic UI Updates, JWT Auth Flow, Postman' },
+      { label: 'Build & Performance:', value: 'Vite, Webpack, Lighthouse Audits (90+), Code Splitting, Virtualization, Git, GitLab CI/CD' }
     ],
-    experienceBulletsIntern: [
-      'Standardized team Git/GitLab version control workflows across feature branching, merge requests, and code reviews, independently reviewing and deploying production code into releases.',
-      'Architected modular, reusable UI components integrated directly into the core production component library, establishing standardized UI consistency across applications.',
-      'Integrated REST APIs into production screens and resolved critical cross-browser UI/UX issues, reducing QA reopen tickets.'
+    feBullets: [
+      "Led frontend development of core interactive modules using React.js, Next.js, and TypeScript, delivering 100% mobile-responsive interfaces.",
+      "Collaborated with backend engineers to establish robust REST API contracts, payload schemas, and validation rules prior to UI development.",
+      "Engineered a library of 20+ accessible, reusable React components (date pickers, data tables, modals, dropdowns) cutting feature turnaround by 35%.",
+      "Slashed client bundle size by 40% and improved Largest Contentful Paint (LCP) from 3.4s to 1.3s via code splitting, dynamic imports, and lazy loading.",
+      "Implemented global state architecture using Redux Toolkit and Context API, eliminating prop drilling and optimizing component re-renders."
     ],
-    projects: [
-      {
-        name: 'Mercanis — B2B SaaS Procurement Platform',
-        tagline: 'Client Enterprise Project',
-        stack: 'React.js · Next.js · TypeScript · NestJS · MongoDB',
-        bullets: [
-          'Built core UI workflows for procurement teams; owned design-to-production implementation from Figma handoffs to API integrations.',
-          'Engineered shared design system components and eliminated rendering bottlenecks using memoization and virtualized lists.'
-        ]
-      },
-      {
-        name: 'Payroll & HR Platform',
-        tagline: 'Internal Enterprise SaaS',
-        stack: 'Next.js · TypeScript · NestJS · MongoDB · MCP (Model Context Protocol)',
-        bullets: [
-          'Built responsive Next.js frontend with Redux/Context state management against a NestJS backend for company-wide HR operations.',
-          'Designed OAuth-style token exchange and built an MCP (Model Context Protocol) server exposing payroll & calendar tools for AI assistant workflows.'
-        ]
-      },
-      {
-        name: 'EduMiracle — Student ERP Portal',
-        tagline: 'Full-Stack EdTech Platform',
-        stack: 'Next.js · TypeScript · Tailwind CSS · MongoDB · Gemini AI',
-        bullets: [
-          'Built solo full-stack ERP for a coaching institute: live attendance, Recharts mock test analytics, and CBT exam simulator.',
-          'Integrated Gemini AI for real-time automated doubt solving with role-based administrative control.'
-        ]
-      }
+    internBullets: [
+      "Translated Figma prototypes into clean, responsive React components using Tailwind CSS and modern CSS3 flex/grid layouts.",
+      "Integrated REST APIs into production screens with proper loading skeletons, error states, and empty-state placeholders.",
+      "Standardized team Git version control practices across branching, pull requests, and code reviews, reducing deployment defects."
+    ],
+    project1Bullets: [
+      "Built core user interfaces for B2B procurement portal; owned feature implementation from Figma specs to production release.",
+      "Engineered complex multi-step requisition forms with real-time field validation, draft autosaving, and dynamic row addition.",
+      "Implemented table virtualization for large catalogs, keeping render times under 16ms even with 5,000+ items."
+    ],
+    project2Bullets: [
+      "Developed responsive Next.js frontend with Redux Toolkit for centralized employee records, leave requests, and payroll tracking.",
+      "Implemented client-side route protection and JWT authentication with automatic silent token refresh.",
+      "Built custom Model Context Protocol (MCP) server bridging internal calendar data with developer productivity workflows."
+    ],
+    project3Bullets: [
+      "Designed and built complete frontend for coaching institute ERP using Next.js, Tailwind CSS, and Recharts.",
+      "Created interactive student exam dashboard with real-time countdown timer, question palette, and score analysis.",
+      "Integrated Gemini AI API for automated student doubt clarification with clean chat interface and markdown rendering."
     ]
   },
 
   // 4. MERN STACK DEVELOPER
   {
-    roleKey: 'MERN',
+    key: 'MERN',
     fileNameUnderscore: 'Pratik_Patidar_Resume_MERN_Stack_Developer.pdf',
     fileNameHyphen: 'Pratik Patidar Resume - MERN Full Stack.pdf',
-    headlineTitle: 'MERN Stack Developer • MongoDB • Express.js • React.js • Node.js',
-    summary: 'MERN Stack Developer with 1.5+ years of production experience building scalable, database-driven web applications across MongoDB, Express.js/NestJS, React.js, and Node.js. Strong proficiency in asynchronous JavaScript, REST API design, JWT authentication, and responsive frontend interfaces with Next.js and Tailwind CSS.',
-    skills: {
-      category1Title: 'MERN Core Technologies',
-      category1Skills: ['MongoDB', 'Express.js', 'React.js', 'Node.js', 'TypeScript', 'JavaScript (ES6+)', 'Next.js', 'NestJS'],
-      category2Title: 'Backend Architecture & APIs',
-      category2Skills: ['RESTful API Design', 'Mongoose ODM', 'MongoDB Aggregation Pipelines', 'JWT Authentication (HttpOnly)', 'Middleware', 'Postman'],
-      category3Title: 'Frontend & State Management',
-      category3Skills: ['Redux Toolkit', 'Context API', 'React Hook Form', 'Zod', 'Tailwind CSS', 'Responsive UI', 'Figma Integration'],
-      category4Title: 'Tooling, Testing & Deployment',
-      category4Skills: ['Git', 'GitLab CI/CD', 'Jest', 'React Testing Library', 'Vercel', 'Vite', 'npm', 'Lighthouse Optimization']
-    },
-    experienceBulletsFE: [
-      'Developed and maintained MERN-based enterprise software modules, writing robust React frontends and Node.js/NestJS API services.',
-      'Collaborated with backend engineers to establish robust REST API contracts, payload schemas, and validation rules prior to UI development, accelerating integration velocity across SvelteKit and Next.js applications.',
-      'Implemented full MERN authentication flows including JWT token signing, refresh rotation, and protected React client routes.',
-      'Optimized client performance cutting initial JS bundle by ~40% via route-based code splitting and dynamic imports; implemented virtualized scrolling for high-density datasets.'
+    title: 'MERN Stack Developer • MongoDB • Express.js • React.js • Node.js',
+    summary: 'MERN Stack Developer with 1.5+ years of production experience building full-stack web applications with MongoDB, Express.js, React.js, and Node.js. Proficient in architecting RESTful services, implementing JWT authentication with refresh tokens, designing scalable MongoDB schemas, and developing reactive frontends with Next.js and Tailwind CSS.',
+    skillsRows: [
+      { label: 'MERN Core:', value: 'MongoDB, Express.js, React.js, Node.js, TypeScript, JavaScript (ES6+)' },
+      { label: 'Frontend & UI:', value: 'Next.js (App Router), Tailwind CSS, Redux Toolkit, React Hook Form, HTML5, CSS3' },
+      { label: 'Backend & APIs:', value: 'RESTful API Architecture, Mongoose ODM, NestJS, Middleware, Express Routing' },
+      { label: 'Auth & Security:', value: 'JWT Authentication (HttpOnly cookies), Password Hashing (bcrypt), CORS, Role-Based Access' },
+      { label: 'DevOps & Tooling:', value: 'Git, GitLab CI/CD, Vite, Postman, Vercel, npm/yarn, Lighthouse Performance' }
     ],
-    experienceBulletsIntern: [
-      'Standardized team Git/GitLab version control workflows across feature branching, merge requests, and code reviews, independently reviewing and deploying production code into releases.',
-      'Architected modular, reusable UI components integrated directly into the core production component library, establishing standardized UI consistency across applications.',
-      'Integrated REST APIs into production screens and resolved critical cross-browser UI/UX issues, reducing QA reopen tickets.'
+    feBullets: [
+      "Developed full-stack MERN software modules for enterprise client platforms, writing modular React frontends and Node.js/Express API services.",
+      "Designed and implemented 20+ REST API endpoints with Mongoose schema validation, error-handling middleware, and JWT authentication.",
+      "Engineered MongoDB aggregation queries for data filtering, sorting, and reporting, reducing server-side payload sizes and response latency.",
+      "Built responsive, accessible user interfaces in React.js and Next.js, adhering strictly to Figma design specifications.",
+      "Reduced frontend bundle size by 40% using route-based code splitting and lazy loading; implemented client caching with Redux Toolkit."
     ],
-    projects: [
-      {
-        name: 'Mercanis — B2B SaaS Procurement Platform',
-        tagline: 'Client Enterprise Project',
-        stack: 'MongoDB · Express/NestJS · React.js · Node.js',
-        bullets: [
-          'Full-stack MERN contributor for enterprise procurement platform; built reactive user interfaces and connected NestJS/MongoDB backend microservices.',
-          'Engineered shared design system components and eliminated rendering bottlenecks using memoization and virtualized lists.'
-        ]
-      },
-      {
-        name: 'Payroll & HR Platform',
-        tagline: 'Internal Enterprise SaaS',
-        stack: 'Next.js · TypeScript · NestJS · MongoDB · MCP (Model Context Protocol)',
-        bullets: [
-          'Built responsive Next.js frontend with Redux/Context state management against a NestJS backend for company-wide HR operations.',
-          'Designed OAuth-style token exchange and built an MCP (Model Context Protocol) server exposing payroll & calendar tools for AI assistant workflows.'
-        ]
-      },
-      {
-        name: 'EduMiracle — Student ERP Portal',
-        tagline: 'Full-Stack EdTech Platform',
-        stack: 'MongoDB · Express/Next.js · React.js · Node.js · Gemini AI',
-        bullets: [
-          'Built solo full-stack ERP for a coaching institute: live attendance, Recharts mock test analytics, and CBT exam simulator.',
-          'Integrated Gemini AI for real-time automated doubt solving with role-based administrative control.'
-        ]
-      }
+    internBullets: [
+      "Assisted in developing Node.js backend endpoints and connected Mongoose models for internal company productivity tools.",
+      "Built responsive UI views in React.js with Tailwind CSS, ensuring clean cross-device rendering on mobile, tablet, and desktop.",
+      "Followed standard Git/GitLab workflows including branch protection, merge request reviews, and continuous integration deployments."
+    ],
+    project1Bullets: [
+      "Full-stack MERN contributor for B2B procurement platform; built reactive user interfaces and connected Node.js/MongoDB microservices.",
+      "Created supplier onboarding forms with dynamic document uploads, field validation, and status tracking dashboards.",
+      "Optimized catalog browsing with server-side pagination, index-backed search, and virtualized list rendering."
+    ],
+    project2Bullets: [
+      "Engineered internal enterprise SaaS application for company payroll, leave tracking, and attendance records.",
+      "Built secure authentication flow using JWT with HttpOnly cookies, refresh token rotation, and role-based permissions.",
+      "Integrated Model Context Protocol (MCP) server for automated calendar and scheduling integrations."
+    ],
+    project3Bullets: [
+      "Built complete full-stack ERP for education institute: student enrollment, fee records, attendance, and exam simulator.",
+      "Structured MongoDB database with relational referencing across student, course, and exam performance collections.",
+      "Integrated Gemini AI API for intelligent doubt resolution and automated query assistance with admin oversight."
     ]
   }
 ];
 
-export function generateHtmlForVariant(v: ResumeVariantConfig): string {
-  const c = COMMON_CANDIDATE;
-  return `
-<!DOCTYPE html>
-<html>
+export function generateHtml(v: VariantConfig): string {
+  const c = CANDIDATE;
+
+  return `<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
+  <title>${c.fullName} - Resume</title>
   <style>
     @page {
-      size: A4;
-      margin: 9mm 13mm 9mm 13mm;
+      size: A4 portrait;
+      margin: 7mm 11mm 7mm 11mm;
     }
     * {
       box-sizing: border-box;
-    }
-    body {
-      font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
-      font-size: 9.6pt;
-      line-height: 1.30;
-      color: #111;
       margin: 0;
       padding: 0;
     }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 8.8pt;
+      line-height: 1.28;
+      color: #1e293b;
+      background: #ffffff;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Header */
     .header {
       text-align: center;
-      border-bottom: 1.5px solid #1e293b;
       padding-bottom: 4px;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
+      border-bottom: 1.8px solid #0f172a;
     }
     .name {
-      font-size: 17.5pt;
-      font-weight: 700;
+      font-size: 18pt;
+      font-weight: 800;
       letter-spacing: 0.8px;
-      margin: 0;
-      text-transform: uppercase;
       color: #0f172a;
+      text-transform: uppercase;
+      line-height: 1.05;
+      margin-bottom: 2px;
     }
     .headline {
-      font-size: 10pt;
+      font-size: 9.8pt;
       font-weight: 600;
-      color: #334155;
-      margin: 2px 0;
+      color: #2563eb;
+      margin-bottom: 3px;
     }
-    .contacts {
-      font-size: 8.9pt;
+    .contact-bar {
+      font-size: 8.5pt;
       color: #475569;
-      margin-top: 2px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 5px;
     }
-    .contacts a {
+    .contact-bar a {
       color: #0284c7;
       text-decoration: underline;
       text-underline-offset: 2px;
       font-weight: 500;
     }
-    .section-title {
-      font-size: 9.8pt;
+    .contact-sep {
+      color: #94a3b8;
+    }
+
+    /* Section Headers */
+    .section-header {
+      font-size: 9.4pt;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
-      border-bottom: 1px solid #94a3b8;
+      letter-spacing: 0.7px;
+      color: #0f172a;
+      border-bottom: 1px solid #cbd5e1;
       padding-bottom: 1.5px;
       margin-top: 5px;
       margin-bottom: 3px;
-      color: #0f172a;
     }
-    p.summary {
-      margin: 2px 0 3px 0;
-      font-size: 9.1pt;
+
+    /* Summary */
+    .summary-text {
+      font-size: 8.6pt;
+      color: #334155;
+      line-height: 1.30;
       text-align: justify;
-      color: #1e293b;
-      line-height: 1.32;
+      margin-bottom: 2px;
     }
-    .skills-block {
+
+    /* Skills Table */
+    .skills-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.6pt;
+      margin-bottom: 2px;
+    }
+    .skills-table td {
+      padding: 1px 0;
+      vertical-align: top;
+      line-height: 1.26;
+    }
+    .skill-cat {
+      width: 21%;
+      font-weight: 700;
+      color: #0f172a;
+      white-space: nowrap;
+    }
+
+    /* Experience & Projects */
+    .job-block {
+      margin-bottom: 3.5px;
+    }
+    .job-row-1 {
+      display: flex;
+      justify-content: space-between;
       font-size: 9.1pt;
-      margin: 1.5px 0;
-      color: #1e293b;
-    }
-    .skills-category {
       font-weight: 700;
       color: #0f172a;
     }
-    .entry-header {
+    .job-row-2 {
       display: flex;
       justify-content: space-between;
-      font-size: 9.4pt;
-      font-weight: 700;
-      margin-top: 3.5px;
-      color: #0f172a;
-    }
-    .entry-sub {
-      display: flex;
-      justify-content: space-between;
-      font-size: 8.8pt;
+      font-size: 8.5pt;
       font-style: italic;
       color: #475569;
       margin-bottom: 1.5px;
     }
-    ul {
-      margin: 1px 0 3.5px 15px;
-      padding: 0;
+    .company-title {
+      color: #1e40af;
+      font-style: normal;
+      font-weight: 600;
     }
-    li {
-      font-size: 8.8pt;
-      margin-bottom: 1.5px;
-      line-height: 1.28;
-      color: #1e293b;
+
+    ul.bullet-list {
+      margin-left: 14px;
+      margin-top: 1px;
+      margin-bottom: 1px;
+    }
+    ul.bullet-list li {
+      font-size: 8.5pt;
+      color: #334155;
+      line-height: 1.26;
+      margin-bottom: 1.2px;
+    }
+
+    /* Education */
+    .edu-row-1 {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9pt;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .edu-row-2 {
+      display: flex;
+      justify-content: space-between;
+      font-size: 8.5pt;
+      color: #475569;
     }
   </style>
 </head>
 <body>
+
+  <!-- HEADER -->
   <div class="header">
     <div class="name">${c.fullName}</div>
-    <div class="headline">${v.headlineTitle}</div>
-    <div class="contacts">
-      ${c.location} &nbsp;•&nbsp; 
-      <a href="mailto:${c.email}">${c.email}</a> &nbsp;•&nbsp; 
-      <a href="tel:${c.phone.replace(/[^0-9+]/g, '')}">${c.phone}</a> &nbsp;•&nbsp; 
-      <a href="${c.linkedin}" target="_blank">LinkedIn</a> &nbsp;•&nbsp; 
-      <a href="${c.github}" target="_blank">GitHub</a> &nbsp;•&nbsp; 
+    <div class="headline">${v.title}</div>
+    <div class="contact-bar">
+      <span>${c.location}</span>
+      <span class="contact-sep">•</span>
+      <a href="mailto:${c.email}">${c.email}</a>
+      <span class="contact-sep">•</span>
+      <a href="tel:${c.phone.replace(/[^0-9+]/g, '')}">${c.phone}</a>
+      <span class="contact-sep">•</span>
+      <a href="${c.linkedin}" target="_blank">LinkedIn</a>
+      <span class="contact-sep">•</span>
+      <a href="${c.github}" target="_blank">GitHub</a>
+      <span class="contact-sep">•</span>
       <a href="${c.portfolio}" target="_blank">Portfolio</a>
     </div>
   </div>
 
-  <div class="section-title">Professional Summary</div>
-  <p class="summary">${v.summary}</p>
+  <!-- SUMMARY -->
+  <div class="section-header">Professional Summary</div>
+  <p class="summary-text">${v.summary}</p>
 
-  <div class="section-title">Technical Skills</div>
-  <div class="skills-block"><span class="skills-category">${v.skills.category1Title}:</span> ${v.skills.category1Skills.join(', ')}</div>
-  <div class="skills-block"><span class="skills-category">${v.skills.category2Title}:</span> ${v.skills.category2Skills.join(', ')}</div>
-  <div class="skills-block"><span class="skills-category">${v.skills.category3Title}:</span> ${v.skills.category3Skills.join(', ')}</div>
-  <div class="skills-block"><span class="skills-category">${v.skills.category4Title}:</span> ${v.skills.category4Skills.join(', ')}</div>
+  <!-- SKILLS -->
+  <div class="section-header">Technical Skills</div>
+  <table class="skills-table">
+    ${v.skillsRows.map(r => `<tr><td class="skill-cat">${r.label}</td><td>${r.value}</td></tr>`).join('')}
+  </table>
 
-  <div class="section-title">Work Experience</div>
-  <div class="entry-header">
-    <span>${c.company}</span>
-    <span>${c.feDuration}</span>
-  </div>
-  <div class="entry-sub">
-    <span>Frontend Engineer</span>
-    <span>${c.location}</span>
-  </div>
-  <ul>
-    ${v.experienceBulletsFE.map(b => `<li>${b}</li>`).join('')}
-  </ul>
-
-  <div class="entry-header">
-    <span>${c.company}</span>
-    <span>${c.internDuration}</span>
-  </div>
-  <div class="entry-sub">
-    <span>Frontend Developer Intern</span>
-    <span>${c.location}</span>
-  </div>
-  <ul>
-    ${v.experienceBulletsIntern.map(b => `<li>${b}</li>`).join('')}
-  </ul>
-
-  <div class="section-title">Key Production Projects</div>
-  ${v.projects.map(proj => `
-    <div class="entry-header">
-      <span>${proj.name}</span>
-      <span>${proj.tagline}</span>
+  <!-- EXPERIENCE -->
+  <div class="section-header">Professional Experience</div>
+  <div class="job-block">
+    <div class="job-row-1">
+      <span>${c.company}</span>
+      <span>May 2025 – Present</span>
     </div>
-    <div class="entry-sub">
-      <span>Stack: ${proj.stack}</span>
+    <div class="job-row-2">
+      <span class="company-title">Frontend Engineer</span>
+      <span>Indore, India</span>
+    </div>
+    <ul class="bullet-list">
+      ${v.feBullets.map(b => `<li>${b}</li>`).join('')}
+    </ul>
+  </div>
+
+  <div class="job-block">
+    <div class="job-row-1">
+      <span>${c.company}</span>
+      <span>Feb 2025 – May 2025</span>
+    </div>
+    <div class="job-row-2">
+      <span class="company-title">Frontend Developer Intern</span>
+      <span>Indore, India</span>
+    </div>
+    <ul class="bullet-list">
+      ${v.internBullets.map(b => `<li>${b}</li>`).join('')}
+    </ul>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="section-header">Key Production Projects</div>
+  <div class="job-block">
+    <div class="job-row-1">
+      <span>Mercanis — B2B Procurement Platform</span>
+      <span style="font-size: 8.2pt; font-weight: 500; color: #64748b;">Enterprise Client Project</span>
+    </div>
+    <div class="job-row-2">
+      <span>Stack: SvelteKit · Next.js · TypeScript · NestJS · MongoDB</span>
       <span></span>
     </div>
-    <ul>
-      ${proj.bullets.map(b => `<li>${b}</li>`).join('')}
+    <ul class="bullet-list">
+      ${v.project1Bullets.map(b => `<li>${b}</li>`).join('')}
     </ul>
-  `).join('')}
+  </div>
 
-  <div class="section-title">Education</div>
-  <div class="entry-header">
+  <div class="job-block">
+    <div class="job-row-1">
+      <span>Payroll & HR Management Platform</span>
+      <span style="font-size: 8.2pt; font-weight: 500; color: #64748b;">Internal Enterprise SaaS</span>
+    </div>
+    <div class="job-row-2">
+      <span>Stack: Next.js · TypeScript · NestJS · MongoDB · MCP</span>
+      <span></span>
+    </div>
+    <ul class="bullet-list">
+      ${v.project2Bullets.map(b => `<li>${b}</li>`).join('')}
+    </ul>
+  </div>
+
+  <div class="job-block">
+    <div class="job-row-1">
+      <span>EduMiracle — Coaching ERP Portal</span>
+      <span style="font-size: 8.2pt; font-weight: 500; color: #64748b;">Full-Stack EdTech</span>
+    </div>
+    <div class="job-row-2">
+      <span>Stack: Next.js · TypeScript · Tailwind CSS · MongoDB · Gemini AI</span>
+      <span></span>
+    </div>
+    <ul class="bullet-list">
+      ${v.project3Bullets.map(b => `<li>${b}</li>`).join('')}
+    </ul>
+  </div>
+
+  <!-- EDUCATION -->
+  <div class="section-header">Education</div>
+  <div class="edu-row-1">
     <span>${c.education.degree}</span>
     <span>${c.education.year}</span>
   </div>
-  <div class="entry-sub">
-    <span>${c.education.institution}</span>
-    <span>${c.education.score}</span>
+  <div class="edu-row-2">
+    <span>${c.education.college}</span>
+    <span style="font-weight: 600; color: #0f172a;">${c.education.grade}</span>
   </div>
+
 </body>
-</html>
-  `;
+</html>`;
 }
 
-export async function compileAllVariants() {
-  const outputDir = path.resolve('data/canonical_resumes');
-  fs.mkdirSync(outputDir, { recursive: true });
+export async function compileAllResumes() {
+  const outputDirs = [
+    path.resolve('data/canonical_resumes'),
+    path.resolve('../profile-rank-engine/resumes'),
+    path.resolve('../job-search-mcp-engine/resumes')
+  ];
+
+  for (const d of outputDirs) {
+    fs.mkdirSync(d, { recursive: true });
+  }
 
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
-  const compiledPaths: string[] = [];
 
-  for (const variant of RESUME_VARIANTS) {
-    const html = generateHtmlForVariant(variant);
+  for (const variant of VARIANTS) {
+    const html = generateHtml(variant);
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'load' });
 
-    // Output with clean underscore name
-    const outUnderscore = path.join(outputDir, variant.fileNameUnderscore);
-    await page.pdf({
-      path: outUnderscore,
-      format: 'A4',
-      printBackground: true,
-      margin: { top: '8mm', bottom: '8mm', left: '11mm', right: '11mm' }
-    });
-    compiledPaths.push(outUnderscore);
+    for (const dir of outputDirs) {
+      const outUnderscore = path.join(dir, variant.fileNameUnderscore);
+      await page.pdf({
+        path: outUnderscore,
+        format: 'A4',
+        printBackground: true,
+        margin: { top: '7mm', bottom: '7mm', left: '10mm', right: '10mm' }
+      });
 
-    // Also copy to hyphen name
-    const outHyphen = path.join(outputDir, variant.fileNameHyphen);
-    fs.copyFileSync(outUnderscore, outHyphen);
+      const outHyphen = path.join(dir, variant.fileNameHyphen);
+      fs.copyFileSync(outUnderscore, outHyphen);
+      console.log(`✅ Saved: ${outUnderscore}`);
+    }
 
-    console.log(`✅ Compiled: ${variant.fileNameUnderscore}`);
+    // If Frontend Engineer, copy as default resume.pdf in key engine repos
+    if (variant.key === 'FE') {
+      fs.copyFileSync(
+        path.join(outputDirs[0], variant.fileNameUnderscore),
+        path.resolve('data/resume.pdf')
+      );
+      fs.copyFileSync(
+        path.join(outputDirs[0], variant.fileNameUnderscore),
+        path.resolve('../hirist-auto-apply-engine/data/resume.pdf')
+      );
+      fs.copyFileSync(
+        path.join(outputDirs[0], variant.fileNameUnderscore),
+        path.resolve('../profile-rank-engine/resumes/Pratik_Patidar_Resume.pdf')
+      );
+      console.log('✅ Synchronized default resume.pdf across all engine repositories');
+    }
+
     await page.close();
   }
 
   await browser.close();
-  return compiledPaths;
+  console.log('\n🎉 ALL 4 RESUME VARIANTS SUCCESSFULLY COMPILED & DISTRIBUTED!');
 }
 
 if (process.argv[1] && process.argv[1].includes('generate_4_resumes')) {
-  compileAllVariants().catch(err => {
-    console.error('Fatal build error:', err);
+  compileAllResumes().catch(err => {
+    console.error('Fatal compilation error:', err);
     process.exit(1);
   });
 }
