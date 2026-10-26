@@ -90,7 +90,7 @@ export const BASE_CANDIDATE_PROFILE = {
     },
     {
       name: "EduMiracle — Student ERP Portal",
-      stack: "Next.js 16 · TypeScript · Tailwind CSS · MongoDB · Gemini AI",
+      stack: "Next.js · TypeScript · Tailwind CSS · MongoDB · Gemini AI",
       bullets: [
         "Built solo full-stack ERP for a real coaching institute: live attendance, Recharts mock test analytics, and CBT exam simulator.",
         "Integrated Gemini AI for real-time automated doubt solving with role-based administrative control."
@@ -310,8 +310,14 @@ export class AtsResumeOptimizer {
     }
     .contacts {
       font-size: 9pt;
-      color: #444;
+      color: #475569;
       margin-top: 2px;
+    }
+    .contacts a {
+      color: #0284c7;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      font-weight: 500;
     }
     .section-title {
       font-size: 10.5pt;
@@ -366,7 +372,14 @@ export class AtsResumeOptimizer {
   <div class="header">
     <div class="name">${profile.fullName}</div>
     <div class="headline">${profile.title}</div>
-    <div class="contacts">${profile.location} &nbsp;|&nbsp; ${profile.email} &nbsp;|&nbsp; ${profile.phone} &nbsp;|&nbsp; LinkedIn &nbsp;|&nbsp; GitHub &nbsp;|&nbsp; Portfolio</div>
+    <div class="contacts">
+      ${profile.location} &nbsp;•&nbsp; 
+      <a href="mailto:${profile.email}">${profile.email}</a> &nbsp;•&nbsp; 
+      <a href="tel:${profile.phone.replace(/[^0-9+]/g, '')}">${profile.phone}</a> &nbsp;•&nbsp; 
+      <a href="https://www.linkedin.com/in/pratik-patidar" target="_blank">LinkedIn</a> &nbsp;•&nbsp; 
+      <a href="https://github.com/nakme12" target="_blank">GitHub</a> &nbsp;•&nbsp; 
+      <a href="https://pratik-portfolio-nine-orcin.vercel.app" target="_blank">Portfolio</a>
+    </div>
   </div>
 
   <div class="section-title">Professional Summary</div>
