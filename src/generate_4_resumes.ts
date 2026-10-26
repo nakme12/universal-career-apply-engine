@@ -47,11 +47,11 @@ export const VARIANTS: ResumeVariant[] = [
     title: 'React.js Developer | Next.js • Redux Toolkit • TypeScript',
     summary: 'React Developer with 1.5+ years of experience engineering high-performance Single Page Applications (SPAs) and SSR web platforms using React 18, Next.js, and TypeScript. Specializes in building scalable component architectures, managing complex client-side state with Redux Toolkit, and integrating RESTful APIs. Experienced in translating Figma designs into responsive, accessible interfaces with a strong focus on rendering performance, reusable UI patterns, and clean code standards.',
     skills: [
-      { category: 'Core & Languages', items: 'React.js (v18), TypeScript, JavaScript (ES6+), HTML5, CSS3, Modern ES Features' },
-      { category: 'Frameworks & UI', items: 'Next.js (App Router, SSR, SSG), Tailwind CSS, CSS Modules, Headless UI, Material UI' },
+      { category: 'Core & Languages', items: 'React.js (v18), Custom Hooks, Virtual DOM, TypeScript, JavaScript (ES6+), HTML5, CSS3' },
+      { category: 'Frameworks & UI', items: 'Next.js (App Router, SSR, SSG), Tailwind CSS, CSS Modules, Headless UI, Component Architecture' },
       { category: 'State & Forms', items: 'Redux Toolkit (RTK Query), Context API, React Hook Form, Zod Schema Validation' },
       { category: 'APIs & Networking', items: 'REST APIs, Axios Interceptors, TanStack Query, WebSocket client, JSON Web Tokens (JWT)' },
-      { category: 'Tools & Workflow', items: 'Git, GitHub, GitLab, Vite, Webpack, Postman, Chrome DevTools, npm/yarn, Agile/Scrum' }
+      { category: 'Tools & Performance', items: 'Git, GitHub, Vite, Webpack, Code Splitting, Postman, Chrome DevTools, Agile/Scrum' }
     ],
     experience: [
       {
@@ -262,7 +262,7 @@ export const VARIANTS: ResumeVariant[] = [
     skills: [
       { category: 'MERN Core', items: 'MongoDB, Express.js, React.js (v18), Node.js, TypeScript, JavaScript (ES6+)' },
       { category: 'Frontend & UI', items: 'Next.js (App Router), Tailwind CSS, Redux Toolkit, React Hook Form, HTML5, CSS3' },
-      { category: 'Backend & APIs', items: 'RESTful API Architecture, Mongoose ODM, Express Middleware, Route Controllers, CORS' },
+      { category: 'Backend & APIs', items: 'RESTful API Architecture, CRUD Services, Mongoose ODM, Express Middleware, Route Controllers, CORS' },
       { category: 'Auth & Security', items: 'JWT Authentication, HttpOnly Cookies, Password Hashing (bcrypt), Role-Based Access Control' },
       { category: 'Tools & Build', items: 'Git, GitHub, GitLab CI/CD, Vite, Postman, Vercel, npm/yarn, Agile/Scrum' }
     ],
