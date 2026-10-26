@@ -567,6 +567,84 @@ export class UniversalCareerSolver {
       filled++;
     }
 
+    // P. Textareas / Custom Questions / Cover Letter / Why Hire You
+    try {
+      const textareas = container.locator('textarea');
+      const taCount = await textareas.count();
+      for (let i = 0; i < taCount; i++) {
+        const ta = textareas.nth(i);
+        if (await ta.isVisible().catch(() => false)) {
+          const val = await ta.inputValue().catch(() => '');
+          if (!val.trim()) {
+            const ph = (await ta.getAttribute('placeholder') || '').toLowerCase();
+            const name = (await ta.getAttribute('name') || '').toLowerCase();
+            const isReq = (await ta.getAttribute('required')) !== null;
+            if (name.includes('cover') || ph.includes('cover') || name.includes('about') || ph.includes('about') || name.includes('why') || ph.includes('why') || ph.includes('message') || isReq) {
+              await ta.fill('Frontend / Full Stack Developer with 1.5+ years of production experience in React.js, Next.js, and TypeScript. Proven track record of reducing bundle sizes by 40%, building scalable UI components, and integrating RESTful APIs. Excited to contribute to engineering goals at this position.').catch(() => null);
+              filled++;
+              console.log(`   📝 Auto-filled custom question/textarea #${i + 1}`);
+            }
+          }
+        }
+      }
+    } catch {}
+
+    // Q. Common Dropdown Selects (<select>)
+    try {
+      const selects = container.locator('select');
+      const selCount = await selects.count();
+      for (let i = 0; i < selCount; i++) {
+        const sel = selects.nth(i);
+        if (await sel.isVisible().catch(() => false)) {
+          const val = await sel.inputValue().catch(() => '');
+          if (!val || val === '0' || val === '-1' || val === '') {
+            const name = (await sel.getAttribute('name') || '').toLowerCase();
+            const id = (await sel.getAttribute('id') || '').toLowerCase();
+            const isReq = (await sel.getAttribute('required')) !== null;
+
+            if (name.includes('gender') || id.includes('gender')) {
+              await sel.selectOption({ label: 'Male' }).catch(() => sel.selectOption({ index: 1 }).catch(() => null));
+              filled++;
+            } else if (name.includes('relocat') || id.includes('relocat')) {
+              await sel.selectOption({ label: 'Yes' }).catch(() => sel.selectOption({ index: 1 }).catch(() => null));
+              filled++;
+            } else if (name.includes('work') || name.includes('authoriz') || name.includes('eligible') || name.includes('citizen')) {
+              await sel.selectOption({ label: 'Yes' }).catch(() => sel.selectOption({ index: 1 }).catch(() => null));
+              filled++;
+            } else if (name.includes('notice') || id.includes('notice')) {
+              await sel.selectOption({ label: '15 Days' }).catch(() => sel.selectOption({ index: 1 }).catch(() => null));
+              filled++;
+            } else if (isReq) {
+              await sel.selectOption({ index: 1 }).catch(() => null);
+              filled++;
+            }
+          }
+        }
+      }
+    } catch {}
+
+    // R. Radio Button Defaults (Authorization, Relocation)
+    try {
+      const radios = container.locator('input[type="radio"]');
+      const rCount = await radios.count();
+      for (let i = 0; i < rCount; i++) {
+        const r = radios.nth(i);
+        if (await r.isVisible().catch(() => false)) {
+          const name = (await r.getAttribute('name') || '').toLowerCase();
+          const val = (await r.getAttribute('value') || '').toLowerCase();
+          const parentText = await r.evaluate(el => el.parentElement?.innerText || '').catch(() => '');
+          const labelLower = parentText.toLowerCase();
+
+          if (labelLower.includes('yes') || val === 'yes' || val === '1' || val === 'true') {
+            if (name.includes('authoriz') || name.includes('eligible') || name.includes('relocat') || labelLower.includes('authorized') || labelLower.includes('relocate')) {
+              await r.check({ force: true }).catch(() => null);
+              console.log(`   🔘 Selected affirmative radio option: ${name || 'option'}`);
+            }
+          }
+        }
+      }
+    } catch {}
+
     return filled;
   }
 
