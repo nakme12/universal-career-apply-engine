@@ -1,0 +1,10 @@
+# Aider Config for universal-career-apply-engine
+model: gemini/gemini-2.5-flash
+yes-always: true
+auto-commits: true
+dark-mode: true
+chat-language: Hinglish
+
+read:
+  - AGENTS.md
+  - README.md
