@@ -45,7 +45,7 @@ export const VARIANTS: ResumeVariant[] = [
     key: 'REACT',
     fileName: 'Pratik_Patidar_Resume_React_Developer.pdf',
     title: 'React.js Developer | Next.js • Redux Toolkit • TypeScript',
-    summary: 'React Developer with 1.5+ years of experience engineering high-performance Single Page Applications (SPAs) and SSR web platforms using React 18, Next.js, and TypeScript. Specializes in building scalable component architectures, managing complex client-side state with Redux Toolkit, and integrating RESTful APIs. Experienced in translating Figma designs into responsive, accessible interfaces with a strong focus on rendering performance, reusable UI patterns, and clean code standards.',
+    summary: 'React Developer with 2+ years of experience engineering high-performance Single Page Applications (SPAs) and SSR web platforms using React 18, Next.js, and TypeScript. Specializes in building scalable component architectures, managing complex client-side state with Redux Toolkit, and integrating RESTful APIs. Experienced in translating Figma designs into responsive, accessible interfaces with a strong focus on rendering performance, reusable UI patterns, and clean code standards.',
     skills: [
       { category: 'Core & Languages', items: 'React.js (v18), Custom Hooks, Virtual DOM, TypeScript, JavaScript (ES6+), HTML5, CSS3' },
       { category: 'Frameworks & UI', items: 'Next.js (App Router, SSR, SSG), Tailwind CSS, CSS Modules, Headless UI, Component Architecture' },
@@ -64,8 +64,7 @@ export const VARIANTS: ResumeVariant[] = [
           'Built a reusable UI library of 25+ components including data tables with multi-column filtering, date-range pickers, and dynamic modals.',
           'Configured Redux Toolkit slices and RTK Query endpoints for centralized state management, automated query caching, and optimistic UI updates.',
           'Eliminated unnecessary component re-renders by utilizing React.memo, useCallback, useMemo, and fine-grained state normalization.',
-          'Integrated secure RESTful APIs with centralized Axios interceptors for automatic Bearer token injection and global error handling.',
-          'Collaborated daily with UI/UX designers and backend developers in Agile sprints to review API contracts and deliver pixel-perfect user flows.'
+          'Integrated secure RESTful APIs with centralized Axios interceptors for automated Bearer token authentication, collaborating in Agile sprints to review API contracts and deliver user flows.'
         ]
       },
       {
@@ -116,7 +115,7 @@ export const VARIANTS: ResumeVariant[] = [
     key: 'FE',
     fileName: 'Pratik_Patidar_Resume_Frontend_Engineer.pdf',
     title: 'Frontend Engineer | React.js • Next.js • TypeScript • UI/UX Architecture',
-    summary: 'Frontend Engineer with 1.5+ years of experience developing responsive, accessible, and high-performance web applications using React.js, Next.js, TypeScript, and modern CSS frameworks. Adept at turning complex UI/UX designs into modular frontend architectures, structuring reusable component design systems, and connecting client applications to RESTful services. Strong focus on clean code, web accessibility (a11y), browser performance, and cross-functional Agile collaboration.',
+    summary: 'Frontend Engineer with 2+ years of experience developing responsive, accessible, and high-performance web applications using React.js, Next.js, TypeScript, and modern CSS frameworks. Adept at turning complex UI/UX designs into modular frontend architectures, structuring reusable component design systems, and connecting client applications to RESTful services. Strong focus on clean code, web accessibility (a11y), browser performance, and cross-functional Agile collaboration.',
     skills: [
       { category: 'Frontend Core', items: 'TypeScript, JavaScript (ES6+), HTML5 Semantic Markup, CSS3, DOM Manipulation' },
       { category: 'Frameworks & Libs', items: 'React.js (v18), Next.js (App Router, SSR, SSG), SvelteKit, Tailwind CSS, CSS Modules' },
@@ -186,68 +185,66 @@ export const VARIANTS: ResumeVariant[] = [
   {
     key: 'FS',
     fileName: 'Pratik_Patidar_Resume_Full_Stack_Developer.pdf',
-    title: 'Full Stack Developer | React.js • Node.js • NestJS • MongoDB • TypeScript',
-    summary: 'Full Stack Developer with 1.5+ years of experience engineering production web applications across the complete stack: responsive React/Next.js frontends and robust Node.js/NestJS/MongoDB backends. Skilled in REST API architecture, database modeling, secure JWT authentication with HttpOnly cookies, and building reusable UI components. Committed to clean system architecture, efficient database queries, and reliable end-to-end feature delivery in Agile environments.',
+    title: 'Full Stack Developer | React.js • Next.js • NestJS • LLM Integration • TypeScript',
+    summary: 'Full stack developer with around 2 years of experience. Most of my work is frontend in React, Next.js and TypeScript, and I also write backend code in NestJS and MongoDB. I have worked on a procurement SaaS for a German client and on our internal HR and payroll platform, where I also worked on AI features with OpenRouter, RAG and MCP. Based in Indore.',
     skills: [
-      { category: 'Frontend', items: 'React.js (v18), Next.js (App Router), TypeScript, JavaScript (ES6+), Tailwind CSS, Redux Toolkit' },
-      { category: 'Backend & APIs', items: 'Node.js, NestJS, Express.js, RESTful API Design, Middleware, JWT Authentication, CORS' },
-      { category: 'Databases & ODM', items: 'MongoDB, Mongoose ODM, Schema Validation, Aggregation Pipelines, Database Indexing' },
-      { category: 'State & Validation', items: 'Redux Toolkit, Context API, React Hook Form, Zod Schema Validation, Class-Validator' },
-      { category: 'DevOps & Tools', items: 'Git, GitHub, GitLab CI/CD, Vite, Postman, Vercel, Chrome DevTools, Linux/Bash' }
+      { category: 'Frontend', items: 'React.js, Next.js (App Router, SSR), SvelteKit, TypeScript, JavaScript (ES6+), HTML5, CSS3, Tailwind CSS, Redux, Context API' },
+      { category: 'Backend & Database', items: 'Node.js, NestJS, REST API Design, MongoDB, Mongoose, JWT Authentication (HttpOnly cookies)' },
+      { category: 'AI Engineering', items: 'LLM Integration (OpenRouter, Gemini), RAG, Model Context Protocol (MCP), n8n Workflow Automation' },
+      { category: 'Testing & Performance', items: 'Jest, React Testing Library, Lazy Loading, Code Splitting, Virtualization, Lighthouse' },
+      { category: 'Tools & Workflow', items: 'Git, GitLab CI/CD, Postman, Jira, Agile/Scrum, Vite, Figma, ESLint, Chrome DevTools' }
     ],
     experience: [
       {
         company: 'Techstuff Private Limited',
-        role: 'Full Stack Developer',
+        role: 'Frontend Engineer (Full-Stack Contributor)',
         period: 'May 2025 – Present',
         location: 'Indore, India',
         bullets: [
-          'Developed end-to-end full-stack features for client web platforms using Next.js on the frontend and Node.js/NestJS on the backend.',
-          'Designed and implemented 20+ secure RESTful API endpoints with request DTO validation, error interceptors, and role-based guards.',
-          'Structured MongoDB schemas using Mongoose with compound indexes and aggregation pipelines for efficient data querying.',
-          'Engineered reusable React component libraries and integrated forms with Zod and React Hook Form for seamless client validation.',
-          'Configured JWT authentication flows with refresh token rotation and HttpOnly cookies, protecting sensitive application routes.',
-          'Collaborated in daily Agile standups, code reviews, and sprint retrospectives to deliver production-ready features on schedule.'
+          'Work on the frontend of Mercanis (SvelteKit) and our internal HR and payroll platform (Next.js), and write NestJS/MongoDB endpoints when a feature needs them.',
+          'Finalise API payloads and validation rules with backend developers before building. Set up JWT login with HttpOnly cookies on both the NestJS and frontend sides.',
+          'Shipped 8+ features through Jira, GitLab merge requests and CI/CD, with QA checking each one before release.',
+          'Helped with the AI features in both products using OpenRouter, and built an MCP server with the official SDK.'
         ]
       },
       {
         company: 'Techstuff Private Limited',
-        role: 'Software Developer Intern',
+        role: 'Frontend Developer Intern',
         period: 'Feb 2025 – May 2025',
         location: 'Indore, India',
         bullets: [
-          'Built responsive frontend views in React.js and Tailwind CSS while assisting with Node.js/Express backend service endpoints.',
-          'Wrote Mongoose data models and validation schemas for internal employee directory and project tracking tools.',
-          'Followed standard Git workflows including feature branch development, pull request reviews, and issue tracking.'
+          'Built React/TypeScript components from Figma designs. Some of them are still in the production component library.',
+          'Connected REST APIs to existing screens and fixed the bugs QA reported, so fewer tickets got reopened.',
+          'Learned our Git/GitLab workflow and was merging production code on my own by the end of the internship.'
         ]
       }
     ],
     projects: [
       {
-        name: 'Mercanis — Enterprise Procurement System',
-        subtitle: 'B2B Client Solution (Next.js, TypeScript, NestJS, MongoDB, Tailwind CSS)',
+        name: 'Mercanis — B2B SaaS Procurement Platform',
+        subtitle: 'Client Project, Germany-based client (SvelteKit, TypeScript, LLM integration)',
         bullets: [
-          'Contributed across frontend and backend: developed supplier management interfaces and connected NestJS CRUD microservices.',
-          'Built Mongoose data models with lifecycle hooks for audit logging on purchase order submissions and status transitions.',
-          'Created responsive data tables with server-side pagination, search filtering, and instant status updates via REST APIs.'
+          'Mostly frontend. Built and maintained UI components, including a shared library of 20+ that the modules use.',
+          'Built features in Supplier Management, Contracts, Purchase Orders and Sourcing Events. Cut the initial JS bundle by about 40%.',
+          'Worked with the AI engineering team on AI integration and helped build the Pricing feature that uses an LLM.'
         ]
       },
       {
-        name: 'Enterprise HR & Payroll Portal',
-        subtitle: 'Internal Business Application (Next.js, TypeScript, NestJS, MongoDB)',
+        name: 'Internal HR & Payroll Platform',
+        subtitle: 'Multi-workspace product (Next.js, TypeScript, NestJS, MongoDB, OpenRouter, MCP, RAG, LLMs)',
         bullets: [
-          'Developed a complete web portal for employee record management, leave approval workflows, and monthly payroll history.',
-          'Built role-based authorization ensuring employees access only their personal slips while HR administrators manage company data.',
-          'Implemented database aggregations for department-wise salary breakdowns, attendance percentages, and monthly leave audits.'
+          'Helped build the ATS workspace from scratch and worked on its AI parts: resume parsing, ATS scoring, job description generation and the AI interview.',
+          'Worked on the HR Bot, a chatbot for the payroll software, and the Attendance Analysis Bot, which calculates employee salary and answers questions about it.',
+          'Worked on moving AI workflows from n8n to OpenRouter-based services in the NestJS backend.',
+          'Built an MCP server with the official SDK so AI assistants can work with app data through our authenticated APIs.'
         ]
       },
       {
-        name: 'EduMiracle — Educational Institute ERP Portal',
-        subtitle: 'Full-Stack Web Platform (React.js, Node.js, Express, MongoDB, Tailwind CSS)',
+        name: 'EduMiracle — Student ERP Portal',
+        subtitle: 'Personal Project (Next.js 16, TypeScript, MongoDB, Tailwind CSS, Recharts, Gemini AI)',
         bullets: [
-          'Architected an all-in-one institute portal handling student enrollments, fee collection schedules, and course batch management.',
-          'Developed an interactive online test module featuring real-time question timers, auto-submission, and automated result generation.',
-          'Designed normalized MongoDB collections with relational references connecting student, batch, and test score records.'
+          'Built it alone for a real NEET/JEE coaching institute: live attendance, mock test analytics and a CBT exam simulator. Deployed on Vercel.',
+          'Also added an admin panel with roles, and Gemini AI to help students with their doubts.'
         ]
       }
     ]
@@ -258,7 +255,7 @@ export const VARIANTS: ResumeVariant[] = [
     key: 'MERN',
     fileName: 'Pratik_Patidar_Resume_MERN_Stack_Developer.pdf',
     title: 'MERN Stack Developer | MongoDB • Express.js • React.js • Node.js',
-    summary: 'MERN Stack Developer with 1.5+ years of experience engineering full-stack web applications using MongoDB, Express.js, React.js, and Node.js. Skilled in architecting RESTful services, database modeling with Mongoose, secure JWT authentication with HttpOnly cookies, and building responsive client interfaces with Next.js and Tailwind CSS. Experienced in end-to-end feature delivery, API optimization, and Agile team workflows.',
+    summary: 'MERN Stack Developer with 2+ years of experience engineering full-stack web applications using MongoDB, Express.js, React.js, and Node.js. Skilled in architecting RESTful services, database modeling with Mongoose, secure JWT authentication with HttpOnly cookies, and building responsive client interfaces with Next.js and Tailwind CSS. Experienced in end-to-end feature delivery, API optimization, and Agile team workflows.',
     skills: [
       { category: 'MERN Core', items: 'MongoDB, Express.js, React.js (v18), Node.js, TypeScript, JavaScript (ES6+)' },
       { category: 'Frontend & UI', items: 'Next.js (App Router), Tailwind CSS, Redux Toolkit, React Hook Form, HTML5, CSS3' },
@@ -337,7 +334,7 @@ export function generateHtml(v: ResumeVariant): string {
   <style>
     @page {
       size: A4 portrait;
-      margin: 0;
+      margin: 10mm 12mm 10mm 12mm;
     }
     * {
       box-sizing: border-box;
@@ -348,35 +345,35 @@ export function generateHtml(v: ResumeVariant): string {
       background: #ffffff;
       color: #1e293b;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      font-size: 9.5pt;
-      line-height: 1.44;
+      font-size: 9.15pt;
+      line-height: 1.34;
       -webkit-font-smoothing: antialiased;
     }
 
     /* HEADER */
     .header {
       text-align: center;
-      padding-bottom: 6px;
-      margin-bottom: 6px;
+      padding-bottom: 4px;
+      margin-bottom: 4px;
       border-bottom: 2px solid #0f172a;
     }
     .name {
-      font-size: 20pt;
+      font-size: 19pt;
       font-weight: 800;
       letter-spacing: 0.8px;
       color: #0f172a;
       text-transform: uppercase;
       line-height: 1.05;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
     .headline {
-      font-size: 10.2pt;
+      font-size: 10pt;
       font-weight: 600;
       color: #1d4ed8;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
     .contact-bar {
-      font-size: 8.9pt;
+      font-size: 8.8pt;
       color: #475569;
       display: flex;
       justify-content: center;
@@ -395,37 +392,37 @@ export function generateHtml(v: ResumeVariant): string {
 
     /* SECTION HEADERS */
     .section-header {
-      font-size: 10.1pt;
+      font-size: 9.9pt;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.6px;
       color: #0f172a;
       border-bottom: 1.4px solid #cbd5e1;
-      padding-bottom: 2.5px;
-      margin-top: 13.5px;
-      margin-bottom: 6px;
+      padding-bottom: 2px;
+      margin-top: 6.5px;
+      margin-bottom: 3.5px;
     }
 
     /* SUMMARY */
     .summary-text {
-      font-size: 9.2pt;
+      font-size: 9.0pt;
       color: #334155;
-      line-height: 1.42;
+      line-height: 1.35;
       text-align: justify;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     /* SKILLS TABLE */
     .skills-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 9.1pt;
-      margin-bottom: 4px;
+      font-size: 9.0pt;
+      margin-bottom: 3px;
     }
     .skills-table td {
-      padding: 2.4px 0;
+      padding: 1.8px 0;
       vertical-align: top;
-      line-height: 1.36;
+      line-height: 1.32;
     }
     .skill-cat {
       width: 21%;
@@ -439,28 +436,28 @@ export function generateHtml(v: ResumeVariant): string {
 
     /* EXPERIENCE & PROJECTS */
     .job-block {
-      margin-bottom: 11px;
+      margin-bottom: 6px;
     }
     .job-row-1 {
       display: flex;
       justify-content: space-between;
-      font-size: 9.6pt;
+      font-size: 9.4pt;
       font-weight: 700;
       color: #0f172a;
     }
     .job-row-2 {
       display: flex;
       justify-content: space-between;
-      font-size: 9.1pt;
+      font-size: 8.9pt;
       color: #475569;
-      margin-bottom: 2.5px;
+      margin-bottom: 2px;
     }
     .role-title {
       color: #1e40af;
       font-weight: 600;
     }
     .project-subtitle {
-      font-size: 8.7pt;
+      font-size: 8.6pt;
       font-style: italic;
       color: #475569;
     }
@@ -471,27 +468,27 @@ export function generateHtml(v: ResumeVariant): string {
       margin-bottom: 2px;
     }
     ul.bullet-list li {
-      font-size: 9.0pt;
+      font-size: 8.9pt;
       color: #334155;
-      line-height: 1.36;
-      margin-bottom: 4.8px;
+      line-height: 1.32;
+      margin-bottom: 2.2px;
     }
 
     /* EDUCATION */
     .edu-block {
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
     .edu-row-1 {
       display: flex;
       justify-content: space-between;
-      font-size: 9.4pt;
+      font-size: 9.3pt;
       font-weight: 700;
       color: #0f172a;
     }
     .edu-row-2 {
       display: flex;
       justify-content: space-between;
-      font-size: 9.0pt;
+      font-size: 8.9pt;
       color: #475569;
     }
   </style>
@@ -601,7 +598,7 @@ export async function compileAllResumes() {
       path: canonicalPdf,
       format: 'A4',
       printBackground: true,
-      margin: { top: '8mm', bottom: '8mm', left: '10mm', right: '10mm' }
+      margin: { top: '0', bottom: '0', left: '0', right: '0' }
     });
     console.log(`✅ Saved canonical: ${canonicalPdf}`);
 
@@ -636,6 +633,7 @@ export async function compileAllResumes() {
   for (const file of existingFiles) {
     if (!allowedInJobSearch.has(file)) {
       const fullPath = path.join(jobSearchResumesDir, file);
+      if (fs.statSync(fullPath).isDirectory()) continue;
       // If it is the excel file, move it to data/ if needed or remove from resumes/
       if (file.endsWith('.xlsx')) {
         const dest = path.resolve('../job-search-mcp-engine/data/audits', file);
